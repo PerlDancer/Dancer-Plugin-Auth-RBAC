@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Komodo Project File - DO NOT EDIT -->
+<project id="7b23eac3-d9c2-447f-8591-606175c40c12" kpf_version="4" name="Dancer-Plugin-Authorize.kpf">
+<preference-set idref="7b23eac3-d9c2-447f-8591-606175c40c12">
+  <boolean id="import_live">1</boolean>
+</preference-set>
+</project>

@@ -63,12 +63,12 @@ plugins:
             user01:
               password: foobar
               roles:
-              - guest
-              - user
+                - guest
+                - user
             user02:
               password: barbaz
               roles:
-              - admin
+                - admin
       permissions:
         class: Config
         options:
@@ -77,21 +77,21 @@ plugins:
               permissions:
                 manage accounts:
                   operations:
-                  - view
-                  - create
-                  - update
-                  - delete
+                    - view
+                    - create
+                    - update
+                    - delete
             user:
               permissions:
                 manage accounts:
                   operations:
-                  - view
-                  - create
+                    - view
+                    - create
             guests:
               permissions:
                 manage accounts:
                   operations:
-                  - view
+                    - view
       
 # CONFIGURATION SEPCIFICATION - LDAP
 # Based on the following credentials/permissions setup
@@ -113,21 +113,21 @@ plugins:
               permissions:
                 manage accounts:
                   operations:
-                  - view
-                  - create
-                  - update
-                  - delete
+                    - view
+                    - create
+                    - update
+                    - delete
             user:
               permissions:
                 manage accounts:
                   operations:
-                  - view
-                  - create
+                    - view
+                    - create
             guests:
               permissions:
                 manage accounts:
                   operations:
-                  - view
+                    - view
 
 
 To install this module using code from CPAN,

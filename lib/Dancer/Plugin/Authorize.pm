@@ -3,45 +3,76 @@
 package Dancer::Plugin::Authorize;
 use strict;
 use warnings;
+use Dancer qw/:syntax/;
 use Dancer::Plugin;
 
 my  $settings = plugin_setting;
 
-foreach my $keyword (keys %{ $settings }) {
+foreach my $key (keys %{ $settings }) {
     
-    register $keyword => sub {
+    register $key => sub {
         
         my $credentialsClass =
-        __PACKAGE__ . "::Credentials::" . $settings->{credentials}->{class};
+        __PACKAGE__ . "::Credentials::" . $settings->{$key}->{credentials}->{class};
         {
             no warnings 'redefine';
-            require $credentialsClass;
+            $credentialsClass =~ s/::/\//g;
+            require "$credentialsClass.pm";
+            $credentialsClass =~ s/\//::/g;
         }
-        return $credentialsClass->authorize($settings->{credentials}->{options}, @_);
+        
+        my $user = session('user');
+        if ($user) {
+            # reset authentication errors
+            $user->{error} = [];
+        }
+        else {
+            # initialize user session object
+            $user = {
+                id    => undef,
+                name  => undef,
+                login => undef,
+                roles => [],
+                error => []
+            };
+        }
+        session 'user' => $user;
+        
+        return $credentialsClass->new->authorize($settings->{$key}->{credentials}->{options}, @_);
         
     };
     
-    register $keyword . '_asa' => sub {
+    register $key . '_err' => sub {
         
-        my $permissionsClass =
-        __PACKAGE__ . "::Permissions::" . $settings->{permissions}->{class};
-        {
-            no warnings 'redefine';
-            require $permissionsClass;
-        }
-        return $permissionsClass->subject_asa($settings->{permissions}->{options}, @_);
+        return @{ session('user')->{error} };
         
     };
     
-    register $keyword . '_can' => sub {
+    register $key . '_asa' => sub {
         
         my $permissionsClass =
-        __PACKAGE__ . "::Permissions::" . $settings->{permissions}->{class};
+        __PACKAGE__ . "::Permissions::" . $settings->{$key}->{permissions}->{class};
         {
             no warnings 'redefine';
-            require $permissionsClass;
+            $permissionsClass =~ s/::/\//g;
+            require "$permissionsClass.pm";
+            $permissionsClass =~ s/\//::/g;
         }
-        return $permissionsClass->subject_can($settings->{permissions}->{options}, @_);
+        return $permissionsClass->new->subject_asa($settings->{$key}->{permissions}->{options}, @_);
+        
+    };
+    
+    register $key . '_can' => sub {
+        
+        my $permissionsClass =
+        __PACKAGE__ . "::Permissions::" . $settings->{$key}->{permissions}->{class};
+        {
+            no warnings 'redefine';
+            $permissionsClass =~ s/::/\//g;
+            require "$permissionsClass.pm";
+            $permissionsClass =~ s/\//::/g;
+        }
+        return $permissionsClass->new->subject_can($settings->{$key}->{permissions}->{options}, @_);
         
     };
     
@@ -49,21 +80,27 @@ foreach my $keyword (keys %{ $settings }) {
 
 =head1 SYNOPSIS
 
-post '/login' => sub {
-
-    if (auth(params->{user}, params->{pass})) {
-        
-        if (auth_asa('guest')) {
-            ...
+    post '/login' => sub {
+    
+        if (auth(params->{user}, params->{pass})) {
+            
+            if (auth_asa('guest')) {
+                ...
+            }
+            
+            if (auth_can('manage_accounts', 'create')) {
+                ...
+            }
+            
         }
-        
-        if (auth_can('manage_accounts', 'create')) {
-            ...
+        else {
+            print auth_err;
         }
-        
-    }
+    
+    };
 
-};
+Note! The authentication framework relies heavily on your choosen session engine,
+please remember to set that appropiately in your application configuration file.
 
 =head1 DESCRIPTION
 
@@ -84,6 +121,7 @@ $keyword = 'foo';
 foo() # authentication function
 foo_asa($role) # check if the authenticated user has the specified role
 foo_can($permission, $action) # check if the authenticated user has permission to perform a specific action
+foo_err() # authentication errors 
 
 The Dancer::Plugin::Authorize authentication framework relies on the L<Dancer::Plugin::Authorize::Credentials>
 namespace to do the actual authentication, and likewise relies on the L<Dancer::Plugin::Authorize::Permissions>
@@ -98,40 +136,42 @@ plugins:
         class: Config
         options:
           ... # options are determined by the requirements of the credentials class
+          ... e.g.
           accounts:
             user01:
               password: foobar
               roles:
-              - guest
-              - user
+                - guest
+                - user
             user02:
               password: barbaz
               roles:
-              - admin
+                - admin
       permissions:
         class: Config
         options:
           ... # options are determined by the requirements of the permissions class
+          ... e.g.
           control:
             admin:
               permissions:
                 manage accounts:
                   operations:
-                  - view
-                  - create
-                  - update
-                  - delete
+                    - view
+                    - create
+                    - update
+                    - delete
             user:
               permissions:
                 manage accounts:
                   operations:
-                  - view
-                  - create
+                    - view
+                    - create
             guests:
               permissions:
                 manage accounts:
                   operations:
-                  - view
+                    - view
 
 =cut
 
