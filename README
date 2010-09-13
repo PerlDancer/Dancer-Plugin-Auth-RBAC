@@ -13,7 +13,7 @@ use Dancer::Plugin::Authorize;
 
 post '/login' => sub {
 
-    if (auth({ login => params->{user}, password => params->{pass} })) {
+    if (auth(params->{user}, params->{pass})) {
         
         if (auth_asa('guest')) {
             ...
