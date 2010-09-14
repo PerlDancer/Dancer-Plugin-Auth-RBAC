@@ -105,8 +105,8 @@ please remember to set that appropiately in your application configuration file.
 =head1 DESCRIPTION
 
 Dancer::Plugin::Authorize is an authentication framework and role-based access control system.
-As a role-based access control system Dancer::Plugin::Authorize give you the ultimate in flexibilty
-and scalability.
+As a role-based access control system Dancer::Plugin::Authorize can be complex but
+will give you the most flexibilty over all other access control methodologies.
 
 Mainly under the Authorize plugin section in the configuration file you'll have a
 keyword which defines all the authentication information needed for that particular

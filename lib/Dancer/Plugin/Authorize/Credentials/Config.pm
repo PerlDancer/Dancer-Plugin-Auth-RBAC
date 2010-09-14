@@ -1,4 +1,4 @@
-# ABSTRACT: Authenticate via the Dancer configuration file!
+# ABSTRACT: Dancer::Plugin::Authorize authentication via the Dancer configuration file!
 
 package Dancer::Plugin::Authorize::Credentials::Config;
 
@@ -29,7 +29,7 @@ use base qw/Dancer::Plugin::Authorize::Credentials/;
     };
 
     my $class = "Dancer::Plugin::Authorize::Credentials::Config";
-    print 'logged in' if $class->authorize($datastore, 'user01', '****');
+    print 'logged in' if $class->new->authorize($datastore, 'user01', '****');
     
 The Dancer application configuration file will be used as the user accounts
 datastore, the accounts should be defined in the configuration file as follows:
