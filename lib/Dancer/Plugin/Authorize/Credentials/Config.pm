@@ -2,8 +2,6 @@
 
 package Dancer::Plugin::Authorize::Credentials::Config;
 
-use Data::Dumper qw/Dumper/;
-
 use strict;
 use warnings;
 use base qw/Dancer::Plugin::Authorize::Credentials/;

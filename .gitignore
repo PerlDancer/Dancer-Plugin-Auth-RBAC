@@ -2,3 +2,5 @@ authorize.kpf
 log/*
 eg
 eg/*
+Dancer-Plugin-Authorize-*
+Dancer-Plugin-Authorize-*/*
