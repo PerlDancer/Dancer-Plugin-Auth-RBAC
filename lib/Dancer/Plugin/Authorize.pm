@@ -42,6 +42,34 @@ foreach my $key (keys %{ $settings }) {
         
     };
     
+    register $key . '_rls' => sub {
+        
+        if (@_) {
+            my $user = session('user');
+            if ($user) {
+                if ($user->{id}) {
+                    push @{$user->{roles}}, @_;
+                    session 'user' => $user;
+                }
+            }
+        }
+        else {
+            my $user = session('user');
+            if ($user) {
+                if ($user->{id}) {
+                    return $user->{roles};
+                }
+            }
+        }
+        
+    };
+    
+    register "un$key" => sub {
+        
+        return session 'user' => {};
+        
+    };
+    
     register $key . '_err' => sub {
         
         return @{ session('user')->{error} };
@@ -83,6 +111,12 @@ foreach my $key (keys %{ $settings }) {
     post '/login' => sub {
     
         if (auth(params->{user}, params->{pass})) {
+        
+            # typically it is your responsibility to set the user's roles
+            # unless otherwise stated, your desired authentication class will
+            # not supply your user's roles
+            
+            # auth_rls(qw/guest moderator/);
             
             if (auth_asa('guest')) {
                 ...
@@ -120,9 +154,11 @@ Dancer::Plugin::Authorize then creates the following functions using your keywor
     $keyword = 'foo';
     foo()                           # authentication function
     foo_asa($role)                  # check if the authenticated user has the specified role
-    foo_can($operation, $action)   # check if the authenticated user has permission
+    foo_can($operation, $action)    # check if the authenticated user has permission
                                     # to perform a specific action
+    foo_rls(@roles)                 # get or set roles for the current logged in user
     foo_err()                       # authentication errors 
+    unfoo()                         # revoke authorization (logout)
 
 The Dancer::Plugin::Authorize authentication framework relies on the L<Dancer::Plugin::Authorize::Credentials>
 namespace to do the actual authentication, and likewise relies on the L<Dancer::Plugin::Authorize::Permissions>

@@ -55,7 +55,9 @@ datastore, the accounts should be defined in the configuration file as follows:
 
 Dancer::Plugin::Authorize::Credentials::Config uses your Dancer application
 configuration file as the datastore where the application's user accounts are
-stored and retrieved from. 
+stored and retrieved from.
+
+** Note! This authentication class sets the user's roles automatically. **
 
 =head1 METHODS
 
@@ -92,7 +94,7 @@ sub authorize {
                     
                     my $session_data = {
                         id    => $login,
-                        name  => $accounts->{$login}->{name} || 'Unknown User',
+                        name  => $accounts->{$login}->{name} || ucfirst($login),
                         login => $login,
                         roles => [@{$accounts->{$login}->{roles}}],
                         error => []
@@ -131,10 +133,6 @@ sub authorize {
         
     }
     
-}
-
-sub _check_options {
-    my ($self, $options) = @_;
 }
 
 1;
