@@ -12,6 +12,7 @@ use Dancer qw/:syntax/;
     package Dancer::Plugin::Authorize::Permissions::MyPermissionsClass;
     use base 'Dancer::Plugin::Authorize::Permissions';
     
+    # every permissions class must have subject_asa and subject_can routines
     sub subject_asa {
         my ($self, $options, @arguments) = @_;
         my $role = shift @arguments;
@@ -24,11 +25,15 @@ use Dancer qw/:syntax/;
         
         if ($role) {
             my $user = $self->credentials;
-            if (grep $role, @{$user->{roles}} ) {
+            if (grep { /$role/ } @{$user->{roles}} ) {
                 return 1;
             }
         }
         
+    }
+    
+    sub subject_can {
+        ...
     }
     
     1;

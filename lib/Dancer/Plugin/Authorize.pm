@@ -117,11 +117,12 @@ authentication and customers may need DBIC authentication. etc.
 
 Dancer::Plugin::Authorize then creates the following functions using your keywords:
 
-$keyword = 'foo';
-foo() # authentication function
-foo_asa($role) # check if the authenticated user has the specified role
-foo_can($permission, $action) # check if the authenticated user has permission to perform a specific action
-foo_err() # authentication errors 
+    $keyword = 'foo';
+    foo()                           # authentication function
+    foo_asa($role)                  # check if the authenticated user has the specified role
+    foo_can($operation, $action)   # check if the authenticated user has permission
+                                    # to perform a specific action
+    foo_err()                       # authentication errors 
 
 The Dancer::Plugin::Authorize authentication framework relies on the L<Dancer::Plugin::Authorize::Credentials>
 namespace to do the actual authentication, and likewise relies on the L<Dancer::Plugin::Authorize::Permissions>
@@ -129,49 +130,49 @@ namespace to handle access control.
 
 =head1 CONFIGURATION
 
-plugins:
-  Authorize:
-    auth: # keyword allows one to setup multiple authentication schemes
-      credentials:
-        class: Config
-        options:
-          ... # options are determined by the requirements of the credentials class
-          ... e.g.
-          accounts:
-            user01:
-              password: foobar
-              roles:
-                - guest
-                - user
-            user02:
-              password: barbaz
-              roles:
-                - admin
-      permissions:
-        class: Config
-        options:
-          ... # options are determined by the requirements of the permissions class
-          ... e.g.
-          control:
-            admin:
-              permissions:
-                manage accounts:
-                  operations:
-                    - view
-                    - create
-                    - update
-                    - delete
-            user:
-              permissions:
-                manage accounts:
-                  operations:
-                    - view
-                    - create
-            guests:
-              permissions:
-                manage accounts:
-                  operations:
-                    - view
+    plugins:
+      Authorize:
+        auth: # keyword allows one to setup multiple authentication schemes
+          credentials:
+            class: Config
+            options:
+              ... # options are determined by the requirements of the credentials class
+              ... e.g.
+              accounts:
+                user01:
+                  password: foobar
+                  roles:
+                    - guest
+                    - user
+                user02:
+                  password: barbaz
+                  roles:
+                    - admin
+          permissions:
+            class: Config
+            options:
+              ... # options are determined by the requirements of the permissions class
+              ... e.g.
+              control:
+                admin:
+                  permissions:
+                    manage accounts:
+                      operations:
+                        - view
+                        - create
+                        - update
+                        - delete
+                user:
+                  permissions:
+                    manage accounts:
+                      operations:
+                        - view
+                        - create
+                guests:
+                  permissions:
+                    manage accounts:
+                      operations:
+                        - view
 
 =cut
 

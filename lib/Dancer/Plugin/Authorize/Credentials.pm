@@ -12,6 +12,7 @@ use Dancer qw/:syntax/;
     package Dancer::Plugin::Authorize::Credentials::MyAuthorizationClass;
     use base 'Dancer::Plugin::Authorize::Credentials';
     
+    # every authentication class must have an authorize routine
     sub authorize {
         my ($self, $options, @arguments) = @_;
         my ($login, $password) = @arguments;
