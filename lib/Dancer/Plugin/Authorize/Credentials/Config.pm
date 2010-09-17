@@ -8,36 +8,12 @@ use base qw/Dancer::Plugin::Authorize::Credentials/;
 
 =head1 SYNOPSIS
 
-    my $datastore = {
-        accounts => {
-            user01 => {
-                password => '****',
-                roles => [qw/
-                    guest
-                    user
-                /]
-            },
-            user02 => {
-                password => '****',
-                roles => [qw/
-                    admin
-                /]
-            }
-        }
-    };
-
-    my $class = "Dancer::Plugin::Authorize::Credentials::Config";
-    print 'logged in' if $class->new->authorize($datastore, 'user01', '****');
-    
-The Dancer application configuration file will be used as the user accounts
-datastore, the accounts should be defined in the configuration file as follows:
-
     plugins:
       Authorize:
-        auth: # keyword allows one to setup multiple authentication schemes
+        mykeyword: 
           credentials:
             class: Config
-            options: # under credentials options accounts is where user accounts should be defined
+            options: 
               accounts:
                 user01:
                   name: Joe Schmoe
@@ -50,12 +26,18 @@ datastore, the accounts should be defined in the configuration file as follows:
                   password: barbaz
                   roles:
                     - admin
+                    
+    # in Dancer application
+    
+    if (mykeyword()) {
+        # authenticated
+        return 1;
+    }
 
 =head1 DESCRIPTION
 
 Dancer::Plugin::Authorize::Credentials::Config uses your Dancer application
-configuration file as the datastore where the application's user accounts are
-stored and retrieved from.
+configuration file as the application's user management system.
 
 ** Note! This authentication class sets the user's roles automatically. **
 

@@ -113,9 +113,10 @@ foreach my $key (keys %{ $settings }) {
         if (auth(params->{user}, params->{pass})) {
         
             # typically it is your responsibility to set the user's roles
-            # unless otherwise stated, your desired authentication class will
-            # not supply your user's roles
-            
+            # unless otherwise stated, typically your desired authentication class
+            # will supply your user's roles automatically
+            # --
+            # however the authenticated user's role may be set using fllowing command
             # auth_rls(qw/guest moderator/);
             
             if (auth_asa('guest')) {
@@ -143,10 +144,10 @@ As a role-based access control system Dancer::Plugin::Authorize can be complex b
 will give you the most flexibilty over all other access control methodologies.
 
 Mainly under the Authorize plugin section in the configuration file you'll have a
-keyword which defines all the authentication information needed for that particular
+keyword which defines the authentication information needed for that particular
 authentication scheme, this keyword exists solely to accomidate use-cases where
 multiple authentication schemes are needed. e.g. an application may need
-to authenticate different types of users differents, i.e. users may need LDAP
+to authenticate different types of users differently, i.e. users may need LDAP
 authentication and customers may need DBIC authentication. etc.
 
 Dancer::Plugin::Authorize then creates the following functions using your keywords:
@@ -157,7 +158,7 @@ Dancer::Plugin::Authorize then creates the following functions using your keywor
     foo_can($operation, $action)    # check if the authenticated user has permission
                                     # to perform a specific action
     foo_rls(@roles)                 # get or set roles for the current logged in user
-    foo_err()                       # authentication errors 
+    foo_err()                       # authentication errors if any
     unfoo()                         # revoke authorization (logout)
 
 The Dancer::Plugin::Authorize authentication framework relies on the L<Dancer::Plugin::Authorize::Credentials>
