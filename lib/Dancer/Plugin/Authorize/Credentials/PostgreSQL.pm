@@ -80,8 +80,6 @@ options and arguments.
     INSERT INTO users (name, login, password, roles)
     VALUES ('Administrator', 'admin', '*****', 'guest, user, admin');
 
-=head1 METHODS
-
 =method authorize
 
 The authorize method (found in every authentication class) validates a user against

@@ -57,9 +57,13 @@ Dancer::Plugin::Authorize exports the auth() keyword:
     $auth->errors()                 # authentication errors if any
     $auth->revoke()                 # revoke authorization (logout)
 
-The Dancer::Plugin::Authorize authentication framework relies on the L<Dancer::Plugin::Authorize::Credentials>
-namespace to do the actual authentication, and likewise relies on the L<Dancer::Plugin::Authorize::Permissions>
-namespace to handle access control.
+The Dancer::Plugin::Authorize authentication framework relies on the
+L<Dancer::Plugin::Authorize::Credentials> namespace to do the actual
+authentication, and likewise relies on the L<Dancer::Plugin::Authorize::Permissions>
+namespace to handle access control. The following configuration example is based on
+L<Dancer::Plugin::Authorize::Credentials::Config> and L<Dancer::Plugin::Authorize::Permissions>.
+This framework also ship with L<Dancer::Plugin::Authorize::Credentials::SQLite>,
+L<Dancer::Plugin::Authorize::Credentials::MySQL>, L<Dancer::Plugin::Authorize::Credentials::PostrgeSQL>.
 
 =head1 CONFIGURATION
 

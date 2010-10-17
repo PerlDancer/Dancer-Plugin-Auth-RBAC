@@ -39,8 +39,6 @@ use base qw/Dancer::Plugin::Authorize::Permissions/;
 Dancer::Plugin::Authorize::Permissions::Config uses your Dancer application
 configuration file as role-based access control system. 
 
-=head1 METHODS
-
 =method subject_asa
 
 The subject_asa method (found in every permissions class) validates whether a user

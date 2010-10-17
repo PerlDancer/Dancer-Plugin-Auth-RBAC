@@ -45,8 +45,6 @@ configuration file as the application's user management system.
                 roles:
                   - admin
 
-=head1 METHODS
-
 =method authorize
 
 The authorize method (found in every authentication class) validates a user against
