@@ -16,38 +16,7 @@ use Dancer qw/:syntax/;
     sub authorize {
         my ($self, $options, @arguments) = @_;
         my ($login, $password) = @arguments;
-        my $settings = $class::settings;
-        
-        if ($login && $password) {
-            
-            # try to perform login
-            if ($passed) {
-                
-                my $session_data = {
-                    id    => '...',
-                    name  => '...',
-                    login => '...',
-                    roles => [qw/ ... /],
-                    error => []
-                };
-                return $self->credentials($session_data);
-                
-            }
-            
-        }
-        else {
-            
-            # try session checking
-            my $user = $self->credentials;
-            if ($user) {
-                ...
-            }
-            else {
-                $self->errors(@errors);
-            }
-            
-        }
-        
+        ...
     }
     
     1;

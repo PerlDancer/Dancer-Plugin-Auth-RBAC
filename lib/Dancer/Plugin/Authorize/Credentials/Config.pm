@@ -8,30 +8,16 @@ use base qw/Dancer::Plugin::Authorize::Credentials/;
 
 =head1 SYNOPSIS
 
-    plugins:
-      Authorize:
-        mykeyword: 
-          credentials:
-            class: Config
-            options: 
-              accounts:
-                user01:
-                  name: Joe Schmoe
-                  password: foobar
-                  roles:
-                    - guest
-                    - user
-                user02:
-                  name: Jacque Fock
-                  password: barbaz
-                  roles:
-                    - admin
-                    
-    # in Dancer application
+    # in your app code
+    my $auth = auth($login, $password);
+    if ($auth) {
+        # login successful
+    }
     
-    if (mykeyword()) {
-        # authenticated
-        return 1;
+    # use your own encryption (if the user account password is encrypted)
+    my $auth = auth($login, encrypt($password));
+    if ($auth) {
+        # login successful
     }
 
 =head1 DESCRIPTION
@@ -39,7 +25,25 @@ use base qw/Dancer::Plugin::Authorize::Credentials/;
 Dancer::Plugin::Authorize::Credentials::Config uses your Dancer application
 configuration file as the application's user management system.
 
-** Note! This authentication class sets the user's roles automatically. **
+=head1 CONFIGURATION
+
+    plugins:
+      Authorize:
+        credentials:
+          class: Config
+          options: 
+            accounts:
+              user01:
+                name: Joe Schmoe
+                password: foobar
+                roles:
+                  - guest
+                  - user
+              user02:
+                name: Jacque Fock
+                password: barbaz
+                roles:
+                  - admin
 
 =head1 METHODS
 

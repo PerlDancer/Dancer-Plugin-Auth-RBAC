@@ -13,26 +13,11 @@ use Dancer qw/:syntax/;
     use base 'Dancer::Plugin::Authorize::Permissions';
     
     # every permissions class must have subject_asa and subject_can routines
+    # the following defines a custom routine for checking the user's role
+    
     sub subject_asa {
         my ($self, $options, @arguments) = @_;
         my $role = shift @arguments;
-        my $settings = $class::settings;
-        
-        # Note! for permissions classes interacting with a database, storing all
-        # roles and actions with the user session will boost application
-        # performance and prevent polling repetitive information, e.g.
-        # $self->permissions($all_roles);
-        
-        if ($role) {
-            my $user = $self->credentials;
-            if (grep { /$role/ } @{$user->{roles}} ) {
-                return 1;
-            }
-        }
-        
-    }
-    
-    sub subject_can {
         ...
     }
     

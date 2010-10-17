@@ -8,128 +8,26 @@ use Dancer::Plugin;
 
 my  $settings = plugin_setting;
 
-foreach my $key (keys %{ $settings }) {
-    
-    register $key => sub {
-        
-        my $credentialsClass =
-        __PACKAGE__ . "::Credentials::" . $settings->{$key}->{credentials}->{class};
-        {
-            no warnings 'redefine';
-            $credentialsClass =~ s/::/\//g;
-            require "$credentialsClass.pm";
-            $credentialsClass =~ s/\//::/g;
-        }
-        
-        my $user = session('user');
-        if ($user) {
-            # reset authentication errors
-            $user->{error} = [];
-        }
-        else {
-            # initialize user session object
-            $user = {
-                id    => undef,
-                name  => undef,
-                login => undef,
-                roles => [],
-                error => []
-            };
-        }
-        session 'user' => $user;
-        
-        return $credentialsClass->new->authorize($settings->{$key}->{credentials}->{options}, @_);
-        
-    };
-    
-    register $key . '_rls' => sub {
-        
-        if (@_) {
-            my $user = session('user');
-            if ($user) {
-                if ($user->{id}) {
-                    push @{$user->{roles}}, @_;
-                    session 'user' => $user;
-                }
-            }
-        }
-        else {
-            my $user = session('user');
-            if ($user) {
-                if ($user->{id}) {
-                    return $user->{roles};
-                }
-            }
-        }
-        
-    };
-    
-    register "un$key" => sub {
-        
-        return session 'user' => {};
-        
-    };
-    
-    register $key . '_err' => sub {
-        
-        return @{ session('user')->{error} };
-        
-    };
-    
-    register $key . '_asa' => sub {
-        
-        my $permissionsClass =
-        __PACKAGE__ . "::Permissions::" . $settings->{$key}->{permissions}->{class};
-        {
-            no warnings 'redefine';
-            $permissionsClass =~ s/::/\//g;
-            require "$permissionsClass.pm";
-            $permissionsClass =~ s/\//::/g;
-        }
-        return $permissionsClass->new->subject_asa($settings->{$key}->{permissions}->{options}, @_);
-        
-    };
-    
-    register $key . '_can' => sub {
-        
-        my $permissionsClass =
-        __PACKAGE__ . "::Permissions::" . $settings->{$key}->{permissions}->{class};
-        {
-            no warnings 'redefine';
-            $permissionsClass =~ s/::/\//g;
-            require "$permissionsClass.pm";
-            $permissionsClass =~ s/\//::/g;
-        }
-        return $permissionsClass->new->subject_can($settings->{$key}->{permissions}->{options}, @_);
-        
-    };
-    
-}
+register auth => sub { return Dancer::Plugin::Authorize->new(@_) };
 
 =head1 SYNOPSIS
 
     post '/login' => sub {
-    
-        if (auth(params->{user}, params->{pass})) {
         
-            # typically it is your responsibility to set the user's roles
-            # unless otherwise stated, typically your desired authentication class
-            # will supply your user's roles automatically
-            # --
-            # however the authenticated user's role may be set using fllowing command
-            # auth_rls(qw/guest moderator/);
-            
-            if (auth_asa('guest')) {
+        my $auth = auth(params->{user}, params->{pass});
+        if ($auth) {
+        
+            if ($auth->asa('guest')) {
                 ...
             }
             
-            if (auth_can('manage_accounts', 'create')) {
+            if ($auth->can('manage_accounts', 'create')) {
                 ...
             }
             
         }
         else {
-            print auth_err;
+            print $auth->errors;
         }
     
     };
@@ -139,27 +37,25 @@ please remember to set that appropiately in your application configuration file.
 
 =head1 DESCRIPTION
 
-Dancer::Plugin::Authorize is an authentication framework and role-based access control system.
-As a role-based access control system Dancer::Plugin::Authorize can be complex but
-will give you the most flexibilty over all other access control methodologies.
+Dancer::Plugin::Authorize is an authentication framework and role-based access
+control system. As a role-based access control system Dancer::Plugin::Authorize
+can be complex but will give you the most flexibilty over all other access
+control philosophies.
 
-Mainly under the Authorize plugin section in the configuration file you'll have a
-keyword which defines the authentication information needed for that particular
-authentication scheme, this keyword exists solely to accomidate use-cases where
-multiple authentication schemes are needed. e.g. an application may need
-to authenticate different types of users differently, i.e. users may need LDAP
-authentication and customers may need DBIC authentication. etc.
+The Dancer::Plugin::Authorize plugin provides your application with the ability
+to easily authenticate and restrict access to specific users and groups by providing
+a tried and tested RBAC (role-based access control) system. Dancer::Plugin::Authorize
+provides this level of sophistication with minimal configuration.
 
-Dancer::Plugin::Authorize then creates the following functions using your keywords:
+Dancer::Plugin::Authorize exports the auth() keyword:
 
-    $keyword = 'foo';
-    foo()                           # authentication function
-    foo_asa($role)                  # check if the authenticated user has the specified role
-    foo_can($operation, $action)    # check if the authenticated user has permission
-                                    # to perform a specific action
-    foo_rls(@roles)                 # get or set roles for the current logged in user
-    foo_err()                       # authentication errors if any
-    unfoo()                         # revoke authorization (logout)
+    $auth = auth($login, $pass)     # new authorization instance
+    $auth->asa($role)               # check if the authenticated user has the specified role
+    $auth->can($operation)          # check if the authenticated user has permission
+    $auth->can($operation, $action) # to perform a specific action
+    $auth->roles(@roles)            # get or set roles for the current logged in user
+    $auth->errors()                 # authentication errors if any
+    $auth->revoke()                 # revoke authorization (logout)
 
 The Dancer::Plugin::Authorize authentication framework relies on the L<Dancer::Plugin::Authorize::Credentials>
 namespace to do the actual authentication, and likewise relies on the L<Dancer::Plugin::Authorize::Permissions>
@@ -169,49 +65,134 @@ namespace to handle access control.
 
     plugins:
       Authorize:
-        auth: # keyword allows one to setup multiple authentication schemes
-          credentials:
-            class: Config
-            options:
-              ... # options are determined by the requirements of the credentials class
-              ... e.g.
-              accounts:
-                user01:
-                  password: foobar
-                  roles:
-                    - guest
-                    - user
-                user02:
-                  password: barbaz
-                  roles:
-                    - admin
-          permissions:
-            class: Config
-            options:
-              ... # options are determined by the requirements of the permissions class
-              ... e.g.
-              control:
-                admin:
-                  permissions:
-                    manage accounts:
-                      operations:
-                        - view
-                        - create
-                        - update
-                        - delete
-                user:
-                  permissions:
-                    manage accounts:
-                      operations:
-                        - view
-                        - create
-                guests:
-                  permissions:
-                    manage accounts:
-                      operations:
-                        - view
+        credentials:
+          class: Config
+          options:
+            accounts:
+              user01:
+                password: foobar
+                roles:
+                  - guest
+                  - user
+              user02:
+                password: barbaz
+                roles:
+                  - admin
+        permissions:
+          class: Config
+          options:
+            control:
+              admin:
+                permissions:
+                  manage accounts:
+                    operations:
+                      - view
+                      - create
+                      - update
+                      - delete
+              user:
+                permissions:
+                  manage accounts:
+                    operations:
+                      - view
+                      - create
+              guests:
+                permissions:
+                  manage accounts:
+                    operations:
+                      - view
 
 =cut
+
+sub new {
+    my $class = shift;
+    my $credentialsClass =
+    __PACKAGE__ . "::Credentials::" . $settings->{credentials}->{class};
+    {
+        no warnings 'redefine';
+        $credentialsClass =~ s/::/\//g;
+        require "$credentialsClass.pm";
+        $credentialsClass =~ s/\//::/g;
+    }
+    
+    my $user = session('user');
+    if ($user) {
+        # reset authentication errors
+        $user->{error} = [];
+    }
+    else {
+        # initialize user session object
+        $user = {
+            id    => undef,
+            name  => undef,
+            login => undef,
+            roles => [],
+            error => []
+        };
+    }
+    session 'user' => $user;
+    my $self = {};
+    bless $self, $class;
+    return $credentialsClass->new->authorize($settings->{credentials}->{options}, @_)
+    ? $self : undef;
+}
+
+sub asa {
+    my $self = shift;
+    my $permissionsClass =
+    __PACKAGE__ . "::Permissions::" . $settings->{permissions}->{class};
+    {
+        no warnings 'redefine';
+        $permissionsClass =~ s/::/\//g;
+        require "$permissionsClass.pm";
+        $permissionsClass =~ s/\//::/g;
+    }
+    return $permissionsClass->new->subject_asa($settings->{permissions}->{options}, @_);
+}
+
+sub can {
+    my $self = shift;
+    my $permissionsClass =
+    __PACKAGE__ . "::Permissions::" . $settings->{permissions}->{class};
+    {
+        no warnings 'redefine';
+        $permissionsClass =~ s/::/\//g;
+        require "$permissionsClass.pm";
+        $permissionsClass =~ s/\//::/g;
+    }
+    return $permissionsClass->new->subject_can($settings->{permissions}->{options}, @_);
+}
+
+sub roles {
+    my $self = shift;
+    if (@_) {
+        my $user = session('user');
+        if ($user) {
+            if ($user->{id}) {
+                push @{$user->{roles}}, @_;
+                session 'user' => $user;
+            }
+        }
+    }
+    else {
+        my $user = session('user');
+        if ($user) {
+            if ($user->{id}) {
+                return $user->{roles};
+            }
+        }
+    }
+}
+
+sub errors {
+    my $self = shift;
+    return @{ session('user')->{error} };
+}
+
+sub revoke {
+    my $self = shift;
+    return session 'user' => {};
+}
 
 register_plugin;
 

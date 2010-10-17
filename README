@@ -5,14 +5,21 @@ use Dancer::Plugin::Authorize;
 
 post '/login' => sub {
 
-    if (auth(params->{user}, params->{pass})) {
+    my $auth = auth(params->{user}, params->{pass});
+    
+    if ($auth) {
         
-        if (auth_asa('guest')) {
+        if ($auth->asa('guest')) {
             ...
         }
         
-        if (auth_can('manage_accounts', 'create')) {
-            ...
+        if ($auth->can('manage_accounts')) {
+            if ($auth->can('manage_accounts', 'create')) {
+                ...
+            }
+            else {
+                ...
+            }
         }
         
     }

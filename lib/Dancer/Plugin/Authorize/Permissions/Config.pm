@@ -10,37 +10,29 @@ use base qw/Dancer::Plugin::Authorize::Permissions/;
 
     plugins:
       Authorize:
-        mykeyword: 
-          permissions:
-            class: Config
-            options: 
-              control:
-                admin:
-                  permissions:
-                    manage accounts:
-                      operations:
-                        - view
-                        - create
-                        - update
-                        - delete
-                user:
-                  permissions:
-                    manage accounts:
-                      operations:
-                        - view
-                        - create
-                guests:
-                  permissions:
-                    manage accounts:
-                      operations:
-                        - view
-                        
-    # in Dancer application
-    
-    my $role = 'guests';
-    if (mykeyword_asa($role)) {
-        return 1;
-    }
+        permissions:
+          class: Config
+          options: 
+            control:
+              admin:
+                permissions:
+                  manage accounts:
+                    operations:
+                      - view
+                      - create
+                      - update
+                      - delete
+              user:
+                permissions:
+                  manage accounts:
+                    operations:
+                      - view
+                      - create
+              guests:
+                permissions:
+                  manage accounts:
+                    operations:
+                      - view
 
 =head1 DESCRIPTION
 
@@ -98,15 +90,22 @@ sub subject_can {
             my $permissions = $roles->{$role}->{permissions};
             if (defined $permissions->{$operation}) {
                 
-                if (defined $permissions->{$operation}->{operations}) {
-                    
-                    my $operations = $permissions->{$operation}->{operations};
-                    if (grep { /$action/ } @{$operations}) {
+                if ($action) {
+
+                    if (defined $permissions->{$operation}->{operations}) {
                         
-                        return 1;
+                        my $operations = $permissions->{$operation}->{operations};
+                        if (grep { /$action/ } @{$operations}) {
+                            
+                            return 1;
+                            
+                        }
                         
                     }
-                    
+
+                }
+                else {
+                    return 1;
                 }
                 
             }
