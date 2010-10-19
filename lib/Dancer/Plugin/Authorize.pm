@@ -61,9 +61,10 @@ The Dancer::Plugin::Authorize authentication framework relies on the
 L<Dancer::Plugin::Authorize::Credentials> namespace to do the actual
 authentication, and likewise relies on the L<Dancer::Plugin::Authorize::Permissions>
 namespace to handle access control. The following configuration example is based on
-L<Dancer::Plugin::Authorize::Credentials::Config> and L<Dancer::Plugin::Authorize::Permissions>.
+L<Dancer::Plugin::Authorize::Credentials::Config> and L<Dancer::Plugin::Authorize::Permissions::Config>.
 This framework also ship with L<Dancer::Plugin::Authorize::Credentials::SQLite>,
-L<Dancer::Plugin::Authorize::Credentials::MySQL>, L<Dancer::Plugin::Authorize::Credentials::PostrgeSQL>.
+L<Dancer::Plugin::Authorize::Credentials::MySQL>, L<Dancer::Plugin::Authorize::Credentials::PostrgeSQL>
+which are arguably easier to setup and utilize.
 
 =head1 CONFIGURATION
 
@@ -134,7 +135,11 @@ sub new {
             error => []
         };
     }
+    
     session 'user' => $user;
+    
+    return $credentialsClass->new unless scalar @_;
+    
     my $self = {};
     bless $self, $class;
     return $credentialsClass->new->authorize($settings->{credentials}->{options}, @_)

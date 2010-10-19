@@ -124,6 +124,7 @@ sub authorize {
         }
         else {
             $self->errors('login and/or password is invalid');
+            return undef;
         }
     
     }
@@ -139,10 +140,11 @@ sub authorize {
         }
         else {
             $self->errors('you are not authorized', 'your session may have ended');
+            return undef;
         }
         
     }
-    
+    return undef;
 }
 
 1;

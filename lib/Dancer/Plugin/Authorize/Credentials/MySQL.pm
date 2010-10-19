@@ -101,7 +101,7 @@ sub authorize {
         
         unless ($password) {
             $self->errors('login and password are required');
-            return 0;
+            return undef;
         }
         
         my $sth = database($options->{handle})->prepare(
@@ -129,6 +129,7 @@ sub authorize {
         }
         else {
             $self->errors('login and/or password is invalid');
+            return undef;
         }
     
     }
@@ -144,6 +145,7 @@ sub authorize {
         }
         else {
             $self->errors('you are not authorized', 'your session may have ended');
+            return undef;
         }
         
     }
