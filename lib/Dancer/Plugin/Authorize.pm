@@ -6,7 +6,7 @@ use warnings;
 use Dancer qw/:syntax/;
 use Dancer::Plugin;
 
-my  $settings = plugin_setting;
+our $settings = plugin_setting;
 
 register auth => sub { return Dancer::Plugin::Authorize->new(@_) };
 
@@ -15,7 +15,7 @@ register auth => sub { return Dancer::Plugin::Authorize->new(@_) };
     post '/login' => sub {
         
         my $auth = auth(params->{user}, params->{pass});
-        if ($auth) {
+        if (! $auth->errors) {
         
             if ($auth->asa('guest')) {
                 ...
@@ -111,6 +111,8 @@ which are arguably easier to setup and utilize.
 
 sub new {
     my $class = shift;
+    my @credentials = @_;
+    
     my $credentialsClass =
     __PACKAGE__ . "::Credentials::" . $settings->{credentials}->{class};
     {
@@ -120,7 +122,14 @@ sub new {
         $credentialsClass =~ s/\//::/g;
     }
     
+    my $self = {};
+    bless $self, $class;
+    
+    # return $credentialsClass->new
+    # unless scalar @credentials;
+    
     my $user = session('user');
+    
     if ($user) {
         # reset authentication errors
         $user->{error} = [];
@@ -138,12 +147,11 @@ sub new {
     
     session 'user' => $user;
     
-    return $credentialsClass->new unless scalar @_;
+    #return $credentialsClass->new->authorize($settings->{credentials}->{options}, @credentials)
+    #? $self : undef;
     
-    my $self = {};
-    bless $self, $class;
-    return $credentialsClass->new->authorize($settings->{credentials}->{options}, @_)
-    ? $self : undef;
+    $credentialsClass->new->authorize($settings->{credentials}->{options}, @credentials);
+    return $self;
 }
 
 sub asa {

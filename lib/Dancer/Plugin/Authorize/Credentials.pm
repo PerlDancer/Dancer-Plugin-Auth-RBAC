@@ -50,7 +50,9 @@ sub errors {
     my ($self, @errors) = @_;
     my $user = session('user');
     push @{$user->{error}}, @errors; 
-    return session 'user' => $user;
+    #return session 'user' => $user;
+    session 'user' => $user;
+    return @errors;
 }
 
 1;

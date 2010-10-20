@@ -5,7 +5,6 @@ package Dancer::Plugin::Authorize::Credentials::PostgreSQL;
 use strict;
 use warnings;
 use base qw/Dancer::Plugin::Authorize::Credentials/;
-use Dancer;
 use Dancer::Plugin::Database;
 
 =head1 SYNOPSIS
@@ -100,14 +99,12 @@ sub authorize {
         
         unless ($password) {
             $self->errors('login and password are required');
-            return undef;
+            return 0;
         }
         
         my $sth = database($options->{handle})->prepare(
             'SELECT * FROM users WHERE login = ? AND password = ?',
         );  $sth->execute($login, $password) if $sth;
-        
-        die 'Can\'t connect to the database' unless $sth;
         
         my $accounts = $sth->fetchrow_hashref;
     
@@ -128,7 +125,7 @@ sub authorize {
         }
         else {
             $self->errors('login and/or password is invalid');
-            return undef;
+            return 0;
         }
     
     }
@@ -144,7 +141,7 @@ sub authorize {
         }
         else {
             $self->errors('you are not authorized', 'your session may have ended');
-            return undef;
+            return 0;
         }
         
     }

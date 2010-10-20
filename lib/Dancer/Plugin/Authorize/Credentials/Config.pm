@@ -67,7 +67,7 @@ sub authorize {
         
         unless ($password) {
             $self->errors('login and password are required');
-            return undef;
+            return 0;
         }
     
         if (defined $accounts->{$login}) {
@@ -88,19 +88,19 @@ sub authorize {
                 }
                 else {
                     $self->errors('login and/or password is invalid');
-                    return undef;
+                    return 0;
                 }
                 
             }
             else {
                 $self->errors('attempting to access as inaccessible account');
-                return undef;
+                return 0;
             }
             
         }
         else {
             $self->errors('login and/or password is invalid');
-            return undef;
+            return 0;
         }
     
     }
@@ -116,7 +116,7 @@ sub authorize {
         }
         else {
             $self->errors('you are not authorized', 'your session may have ended');
-            return undef;
+            return 0;
         }
         
     }
