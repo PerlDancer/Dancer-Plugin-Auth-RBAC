@@ -1,0 +1,10 @@
+--- !!perl/hash:Dancer::Session::YAML
+id: 292591322904981249675650130475682792
+user:
+  error: []
+  id: user01
+  login: user01
+  name: User01
+  roles:
+    - guest
+    - user

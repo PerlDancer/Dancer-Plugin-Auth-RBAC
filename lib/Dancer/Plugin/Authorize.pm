@@ -6,9 +6,12 @@ use warnings;
 use Dancer qw/:syntax/;
 use Dancer::Plugin;
 
-our $settings = plugin_setting;
+our $settings = {};
 
-register auth => sub { return Dancer::Plugin::Authorize->new(@_) };
+register auth => sub { 
+    $settings = plugin_setting;
+    return Dancer::Plugin::Authorize->new(@_) 
+};
 
 =head1 SYNOPSIS
 
