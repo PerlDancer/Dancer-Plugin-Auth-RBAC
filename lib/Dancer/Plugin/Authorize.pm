@@ -13,6 +13,15 @@ register auth => sub {
     return Dancer::Plugin::Authorize->new(@_) 
 };
 
+register authd => sub {
+    if ( session('user') ) {
+        if ( session('user')->{id} ) {
+            return true;
+        }
+    }
+    return false;
+};
+
 =head1 SYNOPSIS
 
     post '/login' => sub {
@@ -50,7 +59,7 @@ to easily authenticate and restrict access to specific users and groups by provi
 a tried and tested RBAC (role-based access control) system. Dancer::Plugin::Authorize
 provides this level of sophistication with minimal configuration.
 
-Dancer::Plugin::Authorize exports the auth() keyword:
+Dancer::Plugin::Authorize exports the auth() and authd() keywords:
 
     $auth = auth($login, $pass)     # new authorization instance
     $auth->asa($role)               # check if the authenticated user has the specified role
@@ -59,6 +68,8 @@ Dancer::Plugin::Authorize exports the auth() keyword:
     $auth->roles(@roles)            # get or set roles for the current logged in user
     $auth->errors()                 # authentication errors if any
     $auth->revoke()                 # revoke authorization (logout)
+    
+    return authd()                  # is the current user authorized?
 
 The Dancer::Plugin::Authorize authentication framework relies on the
 L<Dancer::Plugin::Authorize::Credentials> namespace to do the actual
