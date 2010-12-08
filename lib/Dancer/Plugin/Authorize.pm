@@ -1,10 +1,14 @@
-# ABSTRACT: Dancer Authentication, Security and Role-Based Access Control Framework!
+# ABSTRACT: DEPRECATED! Please use L<Dancer::Plugin::Auth::RBAC>.
 
 package Dancer::Plugin::Authorize;
 use strict;
 use warnings;
 use Dancer qw/:syntax/;
 use Dancer::Plugin;
+
+BEGIN {
+    warn "THIS MODULE IS DEPRECATED. PLEASE USE Dancer::Plugin::Auth::RBAC";
+};
 
 our $settings = {};
 
