@@ -1,10 +1,10 @@
-# ABSTRACT: Dancer::Plugin::Authorize authentication via the Dancer configuration file!
+# ABSTRACT: Dancer::Plugin::Auth::RBAC authentication via the Dancer configuration file!
 
-package Dancer::Plugin::Authorize::Credentials::Config;
+package Dancer::Plugin::Auth::RBAC::Credentials::Config;
 
 use strict;
 use warnings;
-use base qw/Dancer::Plugin::Authorize::Credentials/;
+use base qw/Dancer::Plugin::Auth::RBAC::Credentials/;
 
 =head1 SYNOPSIS
 
@@ -22,7 +22,7 @@ use base qw/Dancer::Plugin::Authorize::Credentials/;
 
 =head1 DESCRIPTION
 
-Dancer::Plugin::Authorize::Credentials::Config uses your Dancer application
+Dancer::Plugin::Auth::RBAC::Credentials::Config uses your Dancer application
 configuration file as the application's user management system.
 
 =head1 CONFIGURATION
@@ -57,7 +57,7 @@ sub authorize {
     my ($self, $options, @arguments) = @_;
     my ($login, $password) = @arguments;
     
-    my $settings = $Dancer::Plugin::Authorize::settings;
+    my $settings = $Dancer::Plugin::Auth::RBAC::settings;
     
     if ($login) {
     
