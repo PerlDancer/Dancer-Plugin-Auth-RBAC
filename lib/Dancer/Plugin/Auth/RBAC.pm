@@ -87,7 +87,7 @@ easier to setup and utilize.
 =head1 CONFIGURATION
 
     plugins:
-      Authorize:
+      Auth::RBAC:
         credentials:
           class: Config
           options:

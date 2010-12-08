@@ -32,7 +32,7 @@ as the application's user management system.
       Database:
         driver: 'sqlite'
         database: 'example.db'
-      Authorize:
+      Auth::RBAC:
         credentials:
           class: SQLite
           
@@ -47,7 +47,7 @@ sure you tell the Authorize plugin about it... e.g.
         bar:
           driver: 'sqlite'
           database: 'example2.db'
-      Authorize:
+      Auth::RBAC:
         credentials:
           class: SQLite
           options:

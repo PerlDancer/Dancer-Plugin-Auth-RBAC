@@ -34,7 +34,7 @@ as the application's user management system.
         database: 'test'
         username: 'root'
         password: '****'
-      Authorize:
+      Auth::RBAC:
         credentials:
           class: MySQL
           

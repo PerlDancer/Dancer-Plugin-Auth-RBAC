@@ -9,7 +9,7 @@ use base qw/Dancer::Plugin::Auth::RBAC::Permissions/;
 =head1 SYNOPSIS
 
     plugins:
-      Authorize:
+      Auth::RBAC:
         permissions:
           class: Config
           options: 

@@ -28,7 +28,7 @@ configuration file as the application's user management system.
 =head1 CONFIGURATION
 
     plugins:
-      Authorize:
+      Auth::RBAC:
         credentials:
           class: Config
           options: 

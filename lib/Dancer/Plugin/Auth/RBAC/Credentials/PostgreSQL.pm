@@ -34,7 +34,7 @@ connection as the application's user management system.
         database: 'test'
         username: 'root'
         password: '****'
-      Authorize:
+      Auth::RBAC:
         credentials:
           class: PostgreSQL
           
@@ -51,7 +51,7 @@ sure you tell the Authorize plugin about it... e.g.
           database: 'test'
           username: 'root'
           password: '****'
-      Authorize:
+      Auth::RBAC:
         credentials:
           class: PostgreSQL
           options:
