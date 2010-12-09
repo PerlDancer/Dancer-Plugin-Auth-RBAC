@@ -26,6 +26,14 @@ register authd => sub {
     return false;
 };
 
+=head1 DEPRECATION WARNING
+
+This module has been deprecated in favor of L<Dancer::Plugin::Auth::RBAC> which
+is currently a complete fork but will be maintained and improved instead of this
+one.
+
+In due time this will probably be deleted.
+
 =head1 SYNOPSIS
 
     post '/login' => sub {
