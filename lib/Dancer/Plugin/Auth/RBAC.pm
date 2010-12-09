@@ -32,18 +32,13 @@ sub new {
     my $self = {};
     bless $self, $class;
 
-    # return $credentialsClass->new
-    # unless scalar @credentials;
-
     my $user = session('user');
 
     if ($user) {
-
         # reset authentication errors
         $user->{error} = [];
     }
     else {
-
         # initialize user session object
         $user = {
             id    => undef,
@@ -56,9 +51,6 @@ sub new {
 
     session 'user' => $user;
 
-#return $credentialsClass->new->authorize($settings->{credentials}->{options}, @credentials)
-#? $self : undef;
-
     $credentialsClass->new->authorize( $settings->{credentials}->{options},
         @credentials );
     return $self;
@@ -67,47 +59,47 @@ sub new {
 sub asa {
     my $self = shift;
     my $permissionsClass =
-    __PACKAGE__ . "::Permissions::" . $settings->{permissions}->{class};
-    {
-        no warnings 'redefine';
-        $permissionsClass =~ s/::/\//g;
-        require "$permissionsClass.pm";
-        $permissionsClass =~ s/\//::/g;
-    }
-    return $permissionsClass->new->subject_asa($settings->{permissions}->{options}, @_);
+      __PACKAGE__ . "::Permissions::" . $settings->{permissions}->{class};
+    Dancer::ModuleLoader->load($permissionsClass);
+    return $permissionsClass->new->subject_asa(
+        $settings->{permissions}->{options}, @_ );
 }
 
 sub can {
     my $self = shift;
     my $permissionsClass =
-    __PACKAGE__ . "::Permissions::" . $settings->{permissions}->{class};
-    {
-        no warnings 'redefine';
-        $permissionsClass =~ s/::/\//g;
-        require "$permissionsClass.pm";
-        $permissionsClass =~ s/\//::/g;
-    }
-    return $permissionsClass->new->subject_can($settings->{permissions}->{options}, @_);
+      __PACKAGE__ . "::Permissions::" . $settings->{permissions}->{class};
+    Dancer::ModuleLoader->load($permissionsClass);
+    return $permissionsClass->new->subject_can(
+        $settings->{permissions}->{options}, @_ );
 }
 
 sub roles {
     my $self = shift;
+
     if (@_) {
-        my $user = session('user');
-        if ($user) {
-            if ($user->{id}) {
-                push @{$user->{roles}}, @_;
-                session 'user' => $user;
-            }
-        }
+        $self->_set_roles(@_);
     }
     else {
-        my $user = session('user');
-        if ($user) {
-            if ($user->{id}) {
-                return $user->{roles};
-            }
-        }
+        $self->_get_roles();
+    }
+}
+
+sub _get_roles {
+    my $self = shift;
+    my $user = session('user');
+    if ($user && $user->{id}) {
+        return $user->{roles};
+    }
+}
+
+sub _set_roles {
+    my ($self, @roles) = @_;
+    my $user = session('user');
+
+    if ($user && $user->{id}) {
+        push @{ $user->{roles} }, @roles;
+        session 'user' => $user;
     }
 }
 
