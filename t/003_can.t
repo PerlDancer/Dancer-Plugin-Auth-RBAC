@@ -2,15 +2,18 @@ use strict;
 use warnings;
 use Test::More tests => 16, import => ['!pass'];
 use Test::Exception;
+use File::Temp qw/tempdir/;
 
 BEGIN {
         use_ok 'Dancer', ':syntax';
         use_ok 'Dancer::Plugin::Authorize';
 }
 
+my $dir = tempdir(CLEANUP => 1);
+set appdir => $dir;
+
 my @settings    = <DATA>;
 set session     => "YAML";
-set session_dir => "./t/sessions";
 set plugins     => from_yaml("@settings");
 
 diag 'access control tested (user01 has user and guest roles)';
