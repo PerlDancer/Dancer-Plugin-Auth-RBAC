@@ -5,6 +5,7 @@ use strict;
 use warnings;
 use Dancer qw/:syntax/;
 use Dancer::Plugin;
+use Dancer::ModuleLoader;
 
 our $settings = {};
 
@@ -14,13 +15,115 @@ register auth => sub {
 };
 
 register authd => sub {
-    if ( session('user') ) {
-        if ( session('user')->{id} ) {
-            return true;
-        }
+    if ( session('user') && session('user')->{id}) {
+        return true;
     }
     return false;
 };
+
+sub new {
+    my $class       = shift;
+    my @credentials = @_;
+
+    my $credentialsClass =
+      __PACKAGE__ . "::Credentials::" . $settings->{credentials}->{class};
+    Dancer::ModuleLoader->load($credentialsClass);
+
+    my $self = {};
+    bless $self, $class;
+
+    # return $credentialsClass->new
+    # unless scalar @credentials;
+
+    my $user = session('user');
+
+    if ($user) {
+
+        # reset authentication errors
+        $user->{error} = [];
+    }
+    else {
+
+        # initialize user session object
+        $user = {
+            id    => undef,
+            name  => undef,
+            login => undef,
+            roles => [],
+            error => []
+        };
+    }
+
+    session 'user' => $user;
+
+#return $credentialsClass->new->authorize($settings->{credentials}->{options}, @credentials)
+#? $self : undef;
+
+    $credentialsClass->new->authorize( $settings->{credentials}->{options},
+        @credentials );
+    return $self;
+}
+
+sub asa {
+    my $self = shift;
+    my $permissionsClass =
+    __PACKAGE__ . "::Permissions::" . $settings->{permissions}->{class};
+    {
+        no warnings 'redefine';
+        $permissionsClass =~ s/::/\//g;
+        require "$permissionsClass.pm";
+        $permissionsClass =~ s/\//::/g;
+    }
+    return $permissionsClass->new->subject_asa($settings->{permissions}->{options}, @_);
+}
+
+sub can {
+    my $self = shift;
+    my $permissionsClass =
+    __PACKAGE__ . "::Permissions::" . $settings->{permissions}->{class};
+    {
+        no warnings 'redefine';
+        $permissionsClass =~ s/::/\//g;
+        require "$permissionsClass.pm";
+        $permissionsClass =~ s/\//::/g;
+    }
+    return $permissionsClass->new->subject_can($settings->{permissions}->{options}, @_);
+}
+
+sub roles {
+    my $self = shift;
+    if (@_) {
+        my $user = session('user');
+        if ($user) {
+            if ($user->{id}) {
+                push @{$user->{roles}}, @_;
+                session 'user' => $user;
+            }
+        }
+    }
+    else {
+        my $user = session('user');
+        if ($user) {
+            if ($user->{id}) {
+                return $user->{roles};
+            }
+        }
+    }
+}
+
+sub errors {
+    my $self = shift;
+    return @{ session('user')->{error} };
+}
+
+sub revoke {
+    my $self = shift;
+    return session 'user' => {};
+}
+
+register_plugin;
+
+1;
 
 =head1 SYNOPSIS
 
@@ -125,110 +228,3 @@ easier to setup and utilize.
                     operations:
                       - view
 
-=cut
-
-sub new {
-    my $class = shift;
-    my @credentials = @_;
-    
-    my $credentialsClass =
-    __PACKAGE__ . "::Credentials::" . $settings->{credentials}->{class};
-    {
-        no warnings 'redefine';
-        $credentialsClass =~ s/::/\//g;
-        require "$credentialsClass.pm";
-        $credentialsClass =~ s/\//::/g;
-    }
-    
-    my $self = {};
-    bless $self, $class;
-    
-    # return $credentialsClass->new
-    # unless scalar @credentials;
-    
-    my $user = session('user');
-    
-    if ($user) {
-        # reset authentication errors
-        $user->{error} = [];
-    }
-    else {
-        # initialize user session object
-        $user = {
-            id    => undef,
-            name  => undef,
-            login => undef,
-            roles => [],
-            error => []
-        };
-    }
-    
-    session 'user' => $user;
-    
-    #return $credentialsClass->new->authorize($settings->{credentials}->{options}, @credentials)
-    #? $self : undef;
-    
-    $credentialsClass->new->authorize($settings->{credentials}->{options}, @credentials);
-    return $self;
-}
-
-sub asa {
-    my $self = shift;
-    my $permissionsClass =
-    __PACKAGE__ . "::Permissions::" . $settings->{permissions}->{class};
-    {
-        no warnings 'redefine';
-        $permissionsClass =~ s/::/\//g;
-        require "$permissionsClass.pm";
-        $permissionsClass =~ s/\//::/g;
-    }
-    return $permissionsClass->new->subject_asa($settings->{permissions}->{options}, @_);
-}
-
-sub can {
-    my $self = shift;
-    my $permissionsClass =
-    __PACKAGE__ . "::Permissions::" . $settings->{permissions}->{class};
-    {
-        no warnings 'redefine';
-        $permissionsClass =~ s/::/\//g;
-        require "$permissionsClass.pm";
-        $permissionsClass =~ s/\//::/g;
-    }
-    return $permissionsClass->new->subject_can($settings->{permissions}->{options}, @_);
-}
-
-sub roles {
-    my $self = shift;
-    if (@_) {
-        my $user = session('user');
-        if ($user) {
-            if ($user->{id}) {
-                push @{$user->{roles}}, @_;
-                session 'user' => $user;
-            }
-        }
-    }
-    else {
-        my $user = session('user');
-        if ($user) {
-            if ($user->{id}) {
-                return $user->{roles};
-            }
-        }
-    }
-}
-
-sub errors {
-    my $self = shift;
-    return @{ session('user')->{error} };
-}
-
-sub revoke {
-    my $self = shift;
-    return session 'user' => {};
-}
-
-register_plugin;
-
-1;
