@@ -7,46 +7,45 @@ use warnings;
 use base qw/Dancer::Plugin::Auth::RBAC::Permissions/;
 
 sub subject_can {
-    my ($self, $options, @arguments) = @_;
-    my ($operation, $action) = @arguments;
+    my ( $self, $options, $operation, $action ) = @_;
+
     my $settings = $class::settings;
-    
+
     my $user  = $self->credentials;
     my $roles = $options->{control};
-    
-    foreach my $role ( @{$user->{roles}} ) {
-        
-        if (defined $roles->{$role}->{permissions}) {
-            
-            my $permissions = $roles->{$role}->{permissions};
-            if (defined $permissions->{$operation}) {
-                
-                if ($action) {
 
-                    if (defined $permissions->{$operation}->{operations}) {
-                        
-                        my $operations = $permissions->{$operation}->{operations};
-                        if (grep { /$action/ } @{$operations}) {
-                            
-                            return 1;
-                            
-                        }
-                        
-                    }
+    foreach my $role ( @{ $user->{roles} } ) {
+        my $permissions = $self->_role_has_permissions( $roles, $role );
+        next if !defined $permissions;
 
-                }
-                else {
-                    return 1;
-                }
-                
-            }
-            
-        }
-        
+        return 1 if !defined $permissions->{$operation};
+
+        my $can = $self->_can_do_operation( $permissions, $operation, $action );
+        return 1 if $can;
     }
-    
     return 0;
 }
+
+sub _role_has_permissions {
+    my ( $self, $roles, $role ) = @_;
+
+    defined $roles->{$role}->{permissions}
+      ? return $roles->{$role}->{permissions}
+      : return undef;
+}
+
+sub _can_do_operation {
+    my ( $self, $permissions, $operation, $action ) = @_;
+
+    return 1 if !defined $action;
+    if ( defined $permissions->{$operation} ) {
+        if ( my $op = $permissions->{$operation}->{operations} ) {
+            return 1 if grep { $_ eq $action } @{$op};
+        }
+    }
+    return undef;
+}
+
 
 1;
 
