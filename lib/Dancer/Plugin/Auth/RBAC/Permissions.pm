@@ -7,30 +7,6 @@ use warnings;
 
 use Dancer qw/:syntax/;
 
-=head1 SYNOPSIS
-
-    package Dancer::Plugin::Auth::RBAC::Permissions::MyPermissionsClass;
-    use base 'Dancer::Plugin::Auth::RBAC::Permissions';
-    
-    # every permissions class must have subject_asa and subject_can routines
-    # the following defines a custom routine for checking the user's role
-    
-    sub subject_asa {
-        my ($self, $options, @arguments) = @_;
-        my $role = shift @arguments;
-        ...
-    }
-    
-    1;
-
-=head1 DESCRIPTION
-
-The Dancer::Plugin::Auth::RBAC::Permissions class should be used as a base class in
-your custom role-based acess control/permissions classes. When used as a base class, this
-class provides instantiation and simple error handling for your classes. 
-
-=cut
-
 sub new {
     my $class = shift;
     my $self  = {};
@@ -66,3 +42,27 @@ sub errors {
 }
 
 1;
+
+=head1 SYNOPSIS
+
+    package Dancer::Plugin::Auth::RBAC::Permissions::MyPermissionsClass;
+    use base 'Dancer::Plugin::Auth::RBAC::Permissions';
+    
+    # every permissions class must have subject_asa and subject_can routines
+    # the following defines a custom routine for checking the user's role
+    
+    sub subject_asa {
+        my ($self, $options, @arguments) = @_;
+        my $role = shift @arguments;
+        ...
+    }
+    
+    1;
+
+=head1 DESCRIPTION
+
+The Dancer::Plugin::Auth::RBAC::Permissions class should be used as a base class in
+your custom role-based acess control/permissions classes. When used as a base class, this
+class provides instantiation and simple error handling for your classes. 
+
+=cut

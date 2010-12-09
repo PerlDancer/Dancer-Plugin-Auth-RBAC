@@ -7,6 +7,71 @@ use warnings;
 use base qw/Dancer::Plugin::Auth::RBAC::Credentials/;
 use Dancer::Plugin::Database;
 
+sub authorize {
+    
+    my ($self, $options, @arguments) = @_;
+    my ($login, $password) = @arguments;
+    
+    my $settings = $Dancer::Plugin::Auth::RBAC::settings;
+    
+    if ($login) {
+    
+    # authorize a new account using supplied credentials
+        
+        unless ($password) {
+            $self->errors('login and password are required');
+            return 0;
+        }
+        
+        my $dbh = database($options->{handle});
+        my $sth = $dbh->prepare(
+            'SELECT * FROM users WHERE login = ? AND password = ?',
+        ); $sth->execute($login, $password) if $sth;
+        
+        my $accounts = $sth->fetchrow_hashref;
+    
+        if (defined $accounts) {
+            
+            my $session_data = {
+                id    => $accounts->{id},
+                name  => $accounts->{name},
+                login => $accounts->{login},
+                roles => [
+                    map { $_ =~ s/^\s+|\s+$//; $_  }
+                    split /\,/, $accounts->{roles}
+                ],
+                error => []
+            };
+            return $self->credentials($session_data);
+            
+        }
+        else {
+            $self->errors('login and/or password is invalid');
+            return 0;
+        }
+    
+    }
+    else {
+        
+    # check if current user session is authorized
+        
+        my $user = $self->credentials;
+        if (($user->{id} || $user->{login}) && !@{$user->{error}}) {
+            
+            return $user;
+            
+        }
+        else {
+            $self->errors('you are not authorized', 'your session may have ended');
+            return 0;
+        }
+        
+    }
+    return 0;
+}
+
+1;
+
 =head1 SYNOPSIS
 
     # in your app code
@@ -79,70 +144,3 @@ options and arguments.
 
 The authorize method (found in every authentication class) validates a user against
 the defined datastore using the supplied arguments and configuration file options.
-
-=cut
-
-sub authorize {
-    
-    my ($self, $options, @arguments) = @_;
-    my ($login, $password) = @arguments;
-    
-    my $settings = $Dancer::Plugin::Auth::RBAC::settings;
-    
-    if ($login) {
-    
-    # authorize a new account using supplied credentials
-        
-        unless ($password) {
-            $self->errors('login and password are required');
-            return 0;
-        }
-        
-        my $dbh = database($options->{handle});
-        my $sth = $dbh->prepare(
-            'SELECT * FROM users WHERE login = ? AND password = ?',
-        ); $sth->execute($login, $password) if $sth;
-        
-        my $accounts = $sth->fetchrow_hashref;
-    
-        if (defined $accounts) {
-            
-            my $session_data = {
-                id    => $accounts->{id},
-                name  => $accounts->{name},
-                login => $accounts->{login},
-                roles => [
-                    map { $_ =~ s/^\s+|\s+$//; $_  }
-                    split /\,/, $accounts->{roles}
-                ],
-                error => []
-            };
-            return $self->credentials($session_data);
-            
-        }
-        else {
-            $self->errors('login and/or password is invalid');
-            return 0;
-        }
-    
-    }
-    else {
-        
-    # check if current user session is authorized
-        
-        my $user = $self->credentials;
-        if (($user->{id} || $user->{login}) && !@{$user->{error}}) {
-            
-            return $user;
-            
-        }
-        else {
-            $self->errors('you are not authorized', 'your session may have ended');
-            return 0;
-        }
-        
-    }
-    return 0;
-}
-
-1;
