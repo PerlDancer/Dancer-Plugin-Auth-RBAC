@@ -17,21 +17,41 @@ sub new {
 sub credentials {
     my $self = shift;
     if (@_) {
-        return session 'user' => @_;
+        $self->_set_credentials(@_);
     }
     else {
-        return session('user');
+        $self->_get_credentials();
     }
+}
+
+sub _get_credentials {
+    my $self = shift;
+    return session('user');
+}
+
+sub _set_credentials {
+    my $self = shift;
+    return session 'user' => @_;
 }
 
 sub permissions {
     my $self = shift;
     if (@_) {
-        return session 'roles' => @_;
+        $self->_set_permissions(@_);
     }
     else {
-        return session('roles');
+        $self->_get_permissions();
     }
+}
+
+sub _set_permissions {
+    my $self = shift;
+    return session 'roles' => @_;
+}
+
+sub _get_permissions {
+    my $self = shift;
+    return session('roles');
 }
 
 sub errors {
