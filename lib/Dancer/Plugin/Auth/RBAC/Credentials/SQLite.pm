@@ -37,7 +37,7 @@ as the application's user management system.
           class: SQLite
           
 Sometime you might define multiple connections for the Database plugin, make
-sure you tell the Authorize plugin about it... e.g.
+sure you tell the Auth::RBAC plugin about it... e.g.
 
     plugins:
       Database:

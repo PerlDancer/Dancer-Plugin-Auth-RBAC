@@ -43,7 +43,7 @@ cpan .
 
 REPOSITORY
 
-  http://github.com/alnewkirk/Dancer-Plugin-Authorize/
+  http://github.com/PerlDancer/Dancer-Plugin-Auth-RBAC/
 
 COPYRIGHT AND LICENCE
 
