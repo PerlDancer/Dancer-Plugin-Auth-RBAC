@@ -1,6 +1,6 @@
 # ABSTRACT: Dancer Authentication, Security and Role-Based Access Control Framework!
 
-package Dancer::Plugin::Authorize;
+package Dancer::Plugin::Auth::RBAC;
 use strict;
 use warnings;
 use Dancer qw/:syntax/;
@@ -10,7 +10,7 @@ our $settings = {};
 
 register auth => sub { 
     $settings = plugin_setting;
-    return Dancer::Plugin::Authorize->new(@_) 
+    return Dancer::Plugin::Auth::RBAC->new(@_) 
 };
 
 register authd => sub {
@@ -49,17 +49,18 @@ please remember to set that appropiately in your application configuration file.
 
 =head1 DESCRIPTION
 
-Dancer::Plugin::Authorize is an authentication framework and role-based access
-control system. As a role-based access control system Dancer::Plugin::Authorize
-can be complex but will give you the most flexibilty over all other access
-control philosophies.
+Dancer::Plugin::Auth::RBAC is an authentication framework and role-based
+access control system. As a role-based access control system
+Dancer::Plugin::Auth::RBAC can be complex but will give you the most
+flexibilty over all other access control philosophies.
 
-The Dancer::Plugin::Authorize plugin provides your application with the ability
-to easily authenticate and restrict access to specific users and groups by providing
-a tried and tested RBAC (role-based access control) system. Dancer::Plugin::Authorize
-provides this level of sophistication with minimal configuration.
+The Dancer::Plugin::Auth::RBAC plugin provides your application with the
+ability to easily authenticate and restrict access to specific users and
+groups by providing a tried and tested RBAC (role-based access control)
+system. Dancer::Plugin::Auth::RBAC provides this level of sophistication with
+minimal configuration.  
 
-Dancer::Plugin::Authorize exports the auth() and authd() keywords:
+Dancer::Plugin::Auth::RBAC exports the auth() and authd() keywords:
 
     $auth = auth($login, $pass)     # new authorization instance
     $auth->asa($role)               # check if the authenticated user has the specified role
@@ -71,19 +72,22 @@ Dancer::Plugin::Authorize exports the auth() and authd() keywords:
     
     return authd()                  # is the current user authorized?
 
-The Dancer::Plugin::Authorize authentication framework relies on the
-L<Dancer::Plugin::Authorize::Credentials> namespace to do the actual
-authentication, and likewise relies on the L<Dancer::Plugin::Authorize::Permissions>
-namespace to handle access control. The following configuration example is based on
-L<Dancer::Plugin::Authorize::Credentials::Config> and L<Dancer::Plugin::Authorize::Permissions::Config>.
-This framework also ship with L<Dancer::Plugin::Authorize::Credentials::SQLite>,
-L<Dancer::Plugin::Authorize::Credentials::MySQL>, L<Dancer::Plugin::Authorize::Credentials::PostrgeSQL>
-which are arguably easier to setup and utilize.
+The Dancer::Plugin::Auth::RBAC authentication framework relies on the
+L<Dancer::Plugin::Auth::RBAC::Credentials> namespace to do the actual
+authentication, and likewise relies on the
+L<Dancer::Plugin::Auth::RBAC::Permissions> namespace to handle access control.
+The following configuration example is based on
+L<Dancer::Plugin::Auth::RBAC::Credentials::Config> and
+L<Dancer::Plugin::Auth::RBAC::Permissions::Config>.  This framework also ship
+with L<Dancer::Plugin::Auth::RBAC::Credentials::SQLite>,
+L<Dancer::Plugin::Auth::RBAC::Credentials::MySQL>,
+L<Dancer::Plugin::Auth::RBAC::Credentials::PostrgeSQL> which are arguably
+easier to setup and utilize.
 
 =head1 CONFIGURATION
 
     plugins:
-      Authorize:
+      Auth::RBAC:
         credentials:
           class: Config
           options:

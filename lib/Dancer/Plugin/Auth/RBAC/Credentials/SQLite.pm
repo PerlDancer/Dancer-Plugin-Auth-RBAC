@@ -1,10 +1,10 @@
-# ABSTRACT: Dancer::Plugin::Authorize authentication via PostgreSQL!
+# ABSTRACT: Dancer::Plugin::Auth::RBAC authentication via SQLite!
 
-package Dancer::Plugin::Authorize::Credentials::PostgreSQL;
+package Dancer::Plugin::Auth::RBAC::Credentials::SQLite;
 
 use strict;
 use warnings;
-use base qw/Dancer::Plugin::Authorize::Credentials/;
+use base qw/Dancer::Plugin::Auth::RBAC::Credentials/;
 use Dancer::Plugin::Database;
 
 =head1 SYNOPSIS
@@ -23,20 +23,18 @@ use Dancer::Plugin::Database;
 
 =head1 DESCRIPTION
 
-Dancer::Plugin::Authorize::Credentials::PostgreSQL uses your PostgreSQL database
-connection as the application's user management system.
+Dancer::Plugin::Auth::RBAC::Credentials::SQLite uses your SQLite database connection 
+as the application's user management system.
 
 =head1 CONFIGURATION
 
     plugins:
       Database:
-        driver: 'Pg'
-        database: 'test'
-        username: 'root'
-        password: '****'
-      Authorize:
+        driver: 'sqlite'
+        database: 'example.db'
+      Auth::RBAC:
         credentials:
-          class: PostgreSQL
+          class: SQLite
           
 Sometime you might define multiple connections for the Database plugin, make
 sure you tell the Authorize plugin about it... e.g.
@@ -47,16 +45,14 @@ sure you tell the Authorize plugin about it... e.g.
           driver: 'sqlite'
           database: 'example1.db'
         bar:
-          driver: 'Pg'
-          database: 'test'
-          username: 'root'
-          password: '****'
-      Authorize:
+          driver: 'sqlite'
+          database: 'example2.db'
+      Auth::RBAC:
         credentials:
-          class: PostgreSQL
+          class: SQLite
           options:
-            handle: bar
-
+            handle: foo
+            
 Please see L<Dancer::Plugin::Database> for a list of all available connection
 options and arguments.
 
@@ -64,12 +60,12 @@ options and arguments.
     
     # users table (feel free to add more columns as you see fit)
     
-    CREATE TABLE "users" (
-    "id" SERIAL NOT NULL PRIMARY KEY,
-    "name" TEXT,
-    "login" TEXT NOT NULL,
-    "password" TEXT NOT NULL,
-    "roles" TEXT
+    CREATE TABLE users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name VARCHAR(255) DEFAULT NULL,
+    login VARCHAR(255) NOT NULL,
+    password TEXT NOT NULL,
+    roles TEXT
     );
     
     # create an initial adminstrative user (should probably encrypt the password)
@@ -91,7 +87,7 @@ sub authorize {
     my ($self, $options, @arguments) = @_;
     my ($login, $password) = @arguments;
     
-    my $settings = $Dancer::Plugin::Authorize::settings;
+    my $settings = $Dancer::Plugin::Auth::RBAC::settings;
     
     if ($login) {
     
@@ -102,9 +98,10 @@ sub authorize {
             return 0;
         }
         
-        my $sth = database($options->{handle})->prepare(
+        my $dbh = database($options->{handle});
+        my $sth = $dbh->prepare(
             'SELECT * FROM users WHERE login = ? AND password = ?',
-        );  $sth->execute($login, $password) if $sth;
+        ); $sth->execute($login, $password) if $sth;
         
         my $accounts = $sth->fetchrow_hashref;
     
@@ -145,7 +142,7 @@ sub authorize {
         }
         
     }
-    
+    return 0;
 }
 
 1;
