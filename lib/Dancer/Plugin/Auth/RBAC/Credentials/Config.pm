@@ -8,7 +8,7 @@ use base qw/Dancer::Plugin::Auth::RBAC::Credentials/;
 
 sub authorize {
     my ($self, $options, $login, $password) = @_;
-    
+
     my $settings = $Dancer::Plugin::Auth::RBAC::settings;
 
     if (!$login) {
