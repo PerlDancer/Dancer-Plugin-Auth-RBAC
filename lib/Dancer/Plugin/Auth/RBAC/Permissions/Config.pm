@@ -6,6 +6,50 @@ use strict;
 use warnings;
 use base qw/Dancer::Plugin::Auth::RBAC::Permissions/;
 
+sub subject_can {
+    my ($self, $options, @arguments) = @_;
+    my ($operation, $action) = @arguments;
+    my $settings = $class::settings;
+    
+    my $user  = $self->credentials;
+    my $roles = $options->{control};
+    
+    foreach my $role ( @{$user->{roles}} ) {
+        
+        if (defined $roles->{$role}->{permissions}) {
+            
+            my $permissions = $roles->{$role}->{permissions};
+            if (defined $permissions->{$operation}) {
+                
+                if ($action) {
+
+                    if (defined $permissions->{$operation}->{operations}) {
+                        
+                        my $operations = $permissions->{$operation}->{operations};
+                        if (grep { /$action/ } @{$operations}) {
+                            
+                            return 1;
+                            
+                        }
+                        
+                    }
+
+                }
+                else {
+                    return 1;
+                }
+                
+            }
+            
+        }
+        
+    }
+    
+    return 0;
+}
+
+1;
+
 =head1 SYNOPSIS
 
     plugins:
@@ -70,49 +114,3 @@ is responsible for (or is authorized to operate) a particular operation and can
 perform the specified action under that operation.
 
     return 1 if subject_can($self, $options, $operation, $action);
-
-=cut
-
-sub subject_can {
-    my ($self, $options, @arguments) = @_;
-    my ($operation, $action) = @arguments;
-    my $settings = $class::settings;
-    
-    my $user  = $self->credentials;
-    my $roles = $options->{control};
-    
-    foreach my $role ( @{$user->{roles}} ) {
-        
-        if (defined $roles->{$role}->{permissions}) {
-            
-            my $permissions = $roles->{$role}->{permissions};
-            if (defined $permissions->{$operation}) {
-                
-                if ($action) {
-
-                    if (defined $permissions->{$operation}->{operations}) {
-                        
-                        my $operations = $permissions->{$operation}->{operations};
-                        if (grep { /$action/ } @{$operations}) {
-                            
-                            return 1;
-                            
-                        }
-                        
-                    }
-
-                }
-                else {
-                    return 1;
-                }
-                
-            }
-            
-        }
-        
-    }
-    
-    return 0;
-}
-
-1;
