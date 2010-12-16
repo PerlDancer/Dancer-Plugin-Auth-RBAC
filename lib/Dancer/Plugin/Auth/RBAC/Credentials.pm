@@ -8,8 +8,8 @@ use warnings;
 use Dancer qw/:syntax/;
 
 sub new {
-    my $class = shift;
-    my $self  = {};
+    my ($class, %params) = @_;
+    my $self  = \%params;
     bless $self, $class;
     return $self;
 }
