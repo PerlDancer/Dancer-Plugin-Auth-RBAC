@@ -7,52 +7,8 @@ use warnings;
 use Carp;
 use base qw/Dancer::Plugin::Auth::RBAC::Credentials/;
 
-sub authorize {
+sub find_user {
     my ($self, $userinfo) = @_;
-
-    $self->_authorize($userinfo);
-}
-
-sub _authorize {
-    my ($self, $userinfo) = @_;
-
-    my $user = $self->_find_user($userinfo);
-    if (!$user) {
-        # XXX
-    }
-
-    $self->errors("password is invalid")
-        if !$self->_check_password($user, $userinfo);
-
-    my $session_data = {
-        id => $user->{username},
-        roles => $user->{roles},
-    };
-    $self->credentials($session_data);
-    return 1;
-    # if (!$login && !$password) {
-    #     $self->errors('login and/or password is invalid');
-    #     return undef;
-    # }
-
-    # my $accounts = $self->{settings}->{accounts};
-
-    # # if ($accounts->{$login}->{password} eq $password) {
-    # #     my $session_data = {
-    # #         id    => $login,
-    # #         name  => $accounts->{$login}->{name} || ucfirst($login),
-    # #         login => $login,
-    # #         roles => [@{$accounts->{$login}->{roles}}],
-    # #         error => []
-    # #     };
-    # #     return $self->credentials($session_data);
-    # # }
-    # # $self->errors('login and/or password is invalid');
-    # return undef;
-}
-
-sub _find_user {
-    my ( $self, $userinfo ) = @_;
 
     # XXX key in config ?
     my $id = $userinfo->{username};
@@ -65,17 +21,25 @@ sub _find_user {
     }
 }
 
-sub _check_password {
-    my ( $self, $user, $userinfo ) = @_;
-
+sub check_password {
+    my ($self, $user, $userinfo) = @_;
     my $key = $self->{settings}->{password_field};
 
-    if ( $user->{$key} = $userinfo->{$key} ) {
+    if ( $user->{$key} eq $userinfo->{$key} ) {
         return 1;
     }
     else {
         return undef;
     }
+}
+
+sub set_authenticated {
+    my ($self, $user) = @_;
+
+    return {
+        id => $user->{username},
+        roles => $user->{roles},
+    };
 }
 
 1;
