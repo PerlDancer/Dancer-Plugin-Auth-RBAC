@@ -3,14 +3,12 @@
 package Dancer::Plugin::Auth::RBAC;
 use strict;
 use warnings;
+use Carp;
 use Dancer qw/:syntax/;
 use Dancer::Plugin;
 use Dancer::ModuleLoader;
 
-our $settings = {};
-
-register auth => sub { 
-    $settings = plugin_setting;
+register auth => sub {
     return Dancer::Plugin::Auth::RBAC->new(@_) 
 };
 
@@ -22,56 +20,68 @@ register authd => sub {
 };
 
 sub new {
-    my $class       = shift;
-    my @credentials = @_;
+    my ($class, $userinfo) = @_;
 
-    my $credentialsClass =
-      __PACKAGE__ . "::Credentials::" . $settings->{credentials}->{class};
-    Dancer::ModuleLoader->load($credentialsClass);
+    Carp::croak "credentials are missing" unless $userinfo;
+    
+    my $settings = plugin_setting;
+    my $self = { settings => $settings, };
 
-    my $self = {};
     bless $self, $class;
+
+    my $credentials_class = $self->_load_class('credentials');
 
     my $user = session('user');
 
     if ($user) {
-        # reset authentication errors
-        $user->{error} = [];
+        $user->{error} = []; # reset authentications errors
     }
     else {
         # initialize user session object
-        $user = {
-            id    => undef,
-            name  => undef,
-            login => undef,
-            roles => [],
-            error => []
-        };
+        # $user = {
+        #     id    => undef,
+        #     name  => undef,
+        #     login => undef,
+        #     roles => [],
+        #     error => []
+        # };
     }
 
     session 'user' => $user;
 
-    $credentialsClass->new->authorize( $settings->{credentials}->{options},
-        @credentials );
-    return $self;
+    $credentials_class->new(
+        settings => $self->{settings}->{credentials}->{options} )
+      ->authorize($userinfo) ? return $self : return undef;
+}
+
+sub _load_class {
+    my ( $self, $ns ) = @_;
+
+    my $class =
+      join( '::', __PACKAGE__, ucfirst($ns),
+        $self->{settings}->{$ns}->{class} );
+    Dancer::ModuleLoader->load($class);
+
+    return $class;
 }
 
 sub asa {
     my $self = shift;
-    my $permissionsClass =
-      __PACKAGE__ . "::Permissions::" . $settings->{permissions}->{class};
-    Dancer::ModuleLoader->load($permissionsClass);
-    return $permissionsClass->new->subject_asa(
-        $settings->{permissions}->{options}, @_ );
+
+    my $class = $self->_load_class('permissions');
+
+    return $class->new(
+        settings => $self->{settings}->{permissions}->{options} )
+      ->subject_asa(@_);
 }
 
 sub can {
     my $self = shift;
-    my $permissionsClass =
-      __PACKAGE__ . "::Permissions::" . $settings->{permissions}->{class};
-    Dancer::ModuleLoader->load($permissionsClass);
-    return $permissionsClass->new->subject_can(
-        $settings->{permissions}->{options}, @_ );
+
+    my $class = $self->_load_class('permissions');
+    return $class->new(
+        settings => $self->{settings}->{permissions}->{options} )
+      ->subject_can(@_);
 }
 
 sub roles {
