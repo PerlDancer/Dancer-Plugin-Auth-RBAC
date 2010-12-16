@@ -7,12 +7,10 @@ use warnings;
 use base qw/Dancer::Plugin::Auth::RBAC::Permissions/;
 
 sub subject_can {
-    my ( $self, $options, $operation, $action ) = @_;
-
-    my $settings = $class::settings;
+    my ( $self, $operation, $action ) = @_;
 
     my $user  = $self->credentials;
-    my $roles = $options->{control};
+    my $roles = $self->{settings}->{control};
 
     foreach my $role ( @{ $user->{roles} } ) {
         my $permissions = $self->_role_has_permissions( $roles, $role );
@@ -46,6 +44,18 @@ sub _can_do_operation {
     return undef;
 }
 
+sub subject_asa {
+    my ($self, $role) = @_;
+    my $user = $self->credentials;
+
+    if ($role) {
+        if (grep { $_ eq $role } @{$user->{roles}}) {
+            return 1;
+        }
+    }
+    
+    return 0;
+}
 
 1;
 
@@ -88,23 +98,6 @@ The subject_asa method (found in every permissions class) validates whether a us
 has the role defined in the supplied argument.
 
     return 1 if subject_asa($self, $options, $role);
-
-=cut
-
-sub subject_asa {
-    my ($self, $options, @arguments) = @_;
-    my $role = shift @arguments;
-    my $user = $self->credentials;
-    my $settings = $class::settings;
-    
-    if ($role) {
-        if (grep { /$role/ } @{$user->{roles}}) {
-            return 1;
-        }
-    }
-    
-    return 0;
-}
 
 =method subject_can
 

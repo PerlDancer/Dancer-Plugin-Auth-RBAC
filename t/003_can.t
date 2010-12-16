@@ -1,25 +1,24 @@
 use strict;
 use warnings;
-use Test::More tests => 16, import => ['!pass'];
+use Test::More tests => 14, import => ['!pass'];
 use Test::Exception;
 use File::Temp qw/tempdir/;
 
 BEGIN {
-        use_ok 'Dancer', ':syntax';
-        use_ok 'Dancer::Plugin::Auth::RBAC';
+    use_ok 'Dancer', ':syntax';
+    use_ok 'Dancer::Plugin::Auth::RBAC';
 }
 
-my $dir = tempdir(CLEANUP => 1);
+my $dir = tempdir( CLEANUP => 1 );
 set appdir => $dir;
 
-my @settings    = <DATA>;
-set session     => "YAML";
-set plugins     => from_yaml("@settings");
+my @settings = <DATA>;
+set session => "YAML";
+set plugins => from_yaml("@settings");
 
 diag 'access control tested (user01 has user and guest roles)';
-my $auth = auth('user01', 'foobar');
+my $auth = auth({username => 'user01', password => 'foobar'});
 ok 'Dancer::Plugin::Auth::RBAC' eq ref $auth, 'instance initiated';
-ok !$auth->errors, 'login successful, no errors';
 ok $auth->can("manage accounts"), 'user01 can manage accounts';
 ok $auth->can("manage accounts", "view"), 'user01 can manage accounts and view';
 ok $auth->can("manage accounts", "create"), 'user01 can manage accounts and create';
@@ -28,9 +27,8 @@ ok !$auth->can("manage accounts", "delete"), 'user01 cannot manage accounts and 
 $auth->revoke;
 
 diag 'access control tested (user02 has admin role)';
-$auth = auth('user02', 'barbaz');
+$auth = auth({username => 'user02', password => 'barbaz'});
 ok 'Dancer::Plugin::Auth::RBAC' eq ref $auth, 'instance initiated';
-ok !$auth->errors, 'login successful, no errors';
 ok $auth->can("manage accounts"), 'user01 can manage accounts';
 ok $auth->can("manage accounts", "view"), 'user01 can manage accounts and view';
 ok $auth->can("manage accounts", "create"), 'user01 can manage accounts and create';
@@ -43,6 +41,7 @@ Auth::RBAC:
   credentials:
     class: Config
     options:
+      password_field: password
       accounts:
         user01:
           password: foobar
