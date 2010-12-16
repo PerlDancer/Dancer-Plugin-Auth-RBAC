@@ -33,6 +33,25 @@ sub errors {
     return @errors;
 }
 
+sub authorize {
+    my ($self, $userinfo) = @_;
+
+    my $user = $self->find_user($userinfo);
+    if (!$user) {
+        # XXXX
+        return
+    }
+
+    if (!$self->check_password($user, $userinfo)) {
+        # XXX
+        return
+    }
+
+    my $session_data = $self->set_authenticated($user);
+    $self->credentials($session_data);
+    return 1;
+}
+
 1;
 
 =head1 SYNOPSIS
