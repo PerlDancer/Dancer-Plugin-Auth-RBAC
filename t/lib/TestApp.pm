@@ -4,7 +4,11 @@ use Dancer ':syntax';
 use Dancer::Plugin::Auth::RBAC;
 
 get '/' => sub {
-    if (auth({username => 'foo', password => 'bar'})) {
+
+    my $username = params->{username};
+    my $password = params->{password};
+
+    if (auth({username => $username, password => $password})) {
         return "ok";
     }
     else{

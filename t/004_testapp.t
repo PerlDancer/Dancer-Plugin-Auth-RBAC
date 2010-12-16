@@ -25,6 +25,9 @@ set plugins => {
     'Auth::RBAC' => {
         credentials => {
             class => 'DBIx::Class',
+            options => {
+              password_field => 'password',
+            }
         },
         storer      => {
             schema     => 'schema',
@@ -34,9 +37,25 @@ set plugins => {
 };
 
 my $schema = t::lib::TestApp::Schema->connect($dsn);
-$schema->deploy;
 
-response_status_is    [ GET => '/' ], 200,   "GET / is found";
-response_content_like [GET => '/'], qr/^ok/;
+my @users = (
+    [ 1, 'franck', 's3kr3t' ],
+    [ 2, 'sukria', 'sukr1a' ],
+    [ 3, 'sawyer', 's4wyer' ],
+);
+
+$schema->deploy;
+$schema->populate( 'Role',
+    [ [ 'id', 'role' ], [ 1, 'admin' ], [ 2, 'user' ] ] );
+$schema->populate( 'User', [ [ 'id', 'username', 'password' ], @users ], );
+$schema->populate( 'UserRole',
+    [ [ 'id', 'user', 'roleid' ], [ 1, 1, 1 ], [ 2, 2, 2 ], [ 3, 3, 2 ], ] );
+
+$ENV{QUERY_STRING} =
+  join( '&', 'username=' . $users[0]->[1], 'password=' . $users[0]->[2] );
+
+response_status_is [ GET => "/" ], 200, "GET / is found";
+response_content_like [ GET => '/' ], qr/^ok/;
 
 done_testing;
+

@@ -34,17 +34,13 @@ sub new {
     my $user = session('user');
 
     if ($user) {
-        $user->{error} = []; # reset authentications errors
+        $user->{error} = [];    # reset authentications errors
     }
     else {
-        # initialize user session object
-        # $user = {
-        #     id    => undef,
-        #     name  => undef,
-        #     login => undef,
-        #     roles => [],
-        #     error => []
-        # };
+        $user = {
+            id    => undef,
+            roles => [],
+        };
     }
 
     session 'user' => $user;
