@@ -4,62 +4,78 @@ package Dancer::Plugin::Auth::RBAC::Credentials::Config;
 
 use strict;
 use warnings;
+use Carp;
 use base qw/Dancer::Plugin::Auth::RBAC::Credentials/;
 
 sub authorize {
-    my ($self, $options, $login, $password) = @_;
+    my ($self, $userinfo) = @_;
 
-    my $settings = $Dancer::Plugin::Auth::RBAC::settings;
-
-    if (!$login) {
-        return $self->_is_user_authorized();
-    }
-
-    if (!$password) {
-        $self->errors('login and password are required');
-        return 0;
-    }
-
-    $self->_authorize($options, $login, $password);
-}
-
-sub _is_user_authorized {
-    my $self = shift;
-
-    # check if current user session is authorized
-    my $user = $self->credentials;
-    if ( ( $user->{id} || $user->{login} ) && !@{ $user->{error} } ) {
-        return $user;
-    }
-    else {
-        $self->errors( 'you are not authorized',
-            'your session may have ended' );
-        return 0;
-    }
+    $self->_authorize($userinfo);
 }
 
 sub _authorize {
-    my ($self, $options, $login, $password) = @_;
+    my ($self, $userinfo) = @_;
 
-    if (!$login && !$password) {
-        $self->errors('login and/or password is invalid');
-        return 0;
+    my $user = $self->_find_user($userinfo);
+    if (!$user) {
+        # XXX
     }
 
-    my $accounts = $options->{accounts};
+    $self->errors("password is invalid")
+        if !$self->_check_password($user, $userinfo);
 
-    if ($accounts->{$login}->{password} eq $password) {
-        my $session_data = {
-            id    => $login,
-            name  => $accounts->{$login}->{name} || ucfirst($login),
-            login => $login,
-            roles => [@{$accounts->{$login}->{roles}}],
-            error => []
-        };
-        return $self->credentials($session_data);
+    my $session_data = {
+        id => $user->{username},
+        roles => $user->{roles},
+    };
+    $self->credentials($session_data);
+    return 1;
+    # if (!$login && !$password) {
+    #     $self->errors('login and/or password is invalid');
+    #     return undef;
+    # }
+
+    # my $accounts = $self->{settings}->{accounts};
+
+    # # if ($accounts->{$login}->{password} eq $password) {
+    # #     my $session_data = {
+    # #         id    => $login,
+    # #         name  => $accounts->{$login}->{name} || ucfirst($login),
+    # #         login => $login,
+    # #         roles => [@{$accounts->{$login}->{roles}}],
+    # #         error => []
+    # #     };
+    # #     return $self->credentials($session_data);
+    # # }
+    # # $self->errors('login and/or password is invalid');
+    # return undef;
+}
+
+sub _find_user {
+    my ( $self, $userinfo ) = @_;
+
+    # XXX key in config ?
+    my $id = $userinfo->{username};
+    if ( my $user = $self->{settings}->{accounts}->{$id} ) {
+        $user->{username} = $id;
+        return $user;
     }
-    $self->errors('login and/or password is invalid');
-    return 0;
+    else {
+        return undef;
+    }
+}
+
+sub _check_password {
+    my ( $self, $user, $userinfo ) = @_;
+
+    my $key = $self->{settings}->{password_field};
+
+    if ( $user->{$key} = $userinfo->{$key} ) {
+        return 1;
+    }
+    else {
+        return undef;
+    }
 }
 
 1;
