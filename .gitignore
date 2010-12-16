@@ -4,3 +4,5 @@ eg
 eg/*
 Dancer-Plugin-Authorize-*
 Dancer-Plugin-Authorize-*/*
+/logs/development.log
+/t/lib/logs/development.log
