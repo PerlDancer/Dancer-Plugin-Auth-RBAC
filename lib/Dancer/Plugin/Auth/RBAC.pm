@@ -126,10 +126,10 @@ register_plugin;
 =head1 SYNOPSIS
 
     post '/login' => sub {
-        
-        my $auth = auth(params->{user}, params->{pass});
-        if (! $auth->errors) {
-        
+        my $auth = auth({username => params->{user}, password => params->{pass}});
+        if (!$auth) {
+           return "not authorized";
+        }else{
             if ($auth->asa('guest')) {
                 ...
             }
@@ -137,12 +137,7 @@ register_plugin;
             if ($auth->can('manage_accounts', 'create')) {
                 ...
             }
-            
         }
-        else {
-            print $auth->errors;
-        }
-    
     };
 
 Note! The authentication framework relies heavily on your choosen session engine,
@@ -168,7 +163,6 @@ Dancer::Plugin::Auth::RBAC exports the auth() and authd() keywords:
     $auth->can($operation)          # check if the authenticated user has permission
     $auth->can($operation, $action) # to perform a specific action
     $auth->roles(@roles)            # get or set roles for the current logged in user
-    $auth->errors()                 # authentication errors if any
     $auth->revoke()                 # revoke authorization (logout)
     
     return authd()                  # is the current user authorized?
@@ -179,11 +173,7 @@ authentication, and likewise relies on the
 L<Dancer::Plugin::Auth::RBAC::Permissions> namespace to handle access control.
 The following configuration example is based on
 L<Dancer::Plugin::Auth::RBAC::Credentials::Config> and
-L<Dancer::Plugin::Auth::RBAC::Permissions::Config>.  This framework also ship
-with L<Dancer::Plugin::Auth::RBAC::Credentials::SQLite>,
-L<Dancer::Plugin::Auth::RBAC::Credentials::MySQL>,
-L<Dancer::Plugin::Auth::RBAC::Credentials::PostrgeSQL> which are arguably
-easier to setup and utilize.
+L<Dancer::Plugin::Auth::RBAC::Permissions::Config>.
 
 =head1 CONFIGURATION
 
@@ -192,6 +182,7 @@ easier to setup and utilize.
         credentials:
           class: Config
           options:
+            password_field: password
             accounts:
               user01:
                 password: foobar

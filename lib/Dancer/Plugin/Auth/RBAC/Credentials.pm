@@ -58,12 +58,17 @@ sub authorize {
 
     package Dancer::Plugin::Auth::RBAC::Credentials::MyAuthorizationClass;
     use base 'Dancer::Plugin::Auth::RBAC::Credentials';
-    
-    # every authentication class must have an authorize routine
-    sub authorize {
-        my ($self, $options, @arguments) = @_;
-        my ($login, $password) = @arguments;
-        ...
+
+    sub find_user {
+        my ($self, $authinfo) = @_;
+    }
+
+    sub check_password {
+        my ($self, $user, $authinfo) = @_;
+    }
+
+    sub set_authenticated {
+        my ($self, $user) = @_;
     }
     
     1;
