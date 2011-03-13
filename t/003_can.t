@@ -1,7 +1,6 @@
 use strict;
 use warnings;
 use Test::More tests => 16, import => ['!pass'];
-use Test::Exception;
 use File::Temp qw/tempdir/;
 
 BEGIN {
