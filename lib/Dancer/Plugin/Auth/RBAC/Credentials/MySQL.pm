@@ -1,10 +1,10 @@
-# ABSTRACT: Dancer::Plugin::Authorize authentication via MySQL!
+# ABSTRACT: Dancer::Plugin::Auth::RBAC authentication via MySQL!
 
-package Dancer::Plugin::Authorize::Credentials::MySQL;
+package Dancer::Plugin::Auth::RBAC::Credentials::MySQL;
 
 use strict;
 use warnings;
-use base qw/Dancer::Plugin::Authorize::Credentials/;
+use base qw/Dancer::Plugin::Auth::RBAC::Credentials/;
 use Dancer::Plugin::Database;
 
 =head1 SYNOPSIS
@@ -23,7 +23,7 @@ use Dancer::Plugin::Database;
 
 =head1 DESCRIPTION
 
-Dancer::Plugin::Authorize::Credentials::MySQL uses your MySQL database connection 
+Dancer::Plugin::Auth::RBAC::Credentials::MySQL uses your MySQL database connection 
 as the application's user management system.
 
 =head1 CONFIGURATION
@@ -34,12 +34,12 @@ as the application's user management system.
         database: 'test'
         username: 'root'
         password: '****'
-      Authorize:
+      Auth::RBAC:
         credentials:
           class: MySQL
           
 Sometime you might define multiple connections for the Database plugin, make
-sure you tell the Authorize plugin about it... e.g.
+sure you tell the Auth::RBAC plugin about it... e.g.
 
     plugins:
       Database:
@@ -51,7 +51,7 @@ sure you tell the Authorize plugin about it... e.g.
           database: 'test'
           username: 'root'
           password: '****'
-      Authorize:
+      Auth::RBAC:
         credentials:
           class: MySQL
           options:
@@ -92,7 +92,7 @@ sub authorize {
     my ($self, $options, @arguments) = @_;
     my ($login, $password) = @arguments;
     
-    my $settings = $Dancer::Plugin::Authorize::settings;
+    my $settings = $Dancer::Plugin::Auth::RBAC::settings;
     
     if ($login) {
     

@@ -1,6 +1,6 @@
-# ABSTRACT: Dancer::Plugin::Authorize Credentials base class and guide!
+# ABSTRACT: Dancer::Plugin::Auth::RBAC Credentials base class and guide!
 
-package Dancer::Plugin::Authorize::Credentials;
+package Dancer::Plugin::Auth::RBAC::Credentials;
 
 use strict;
 use warnings;
@@ -9,8 +9,8 @@ use Dancer qw/:syntax/;
 
 =head1 SYNOPSIS
 
-    package Dancer::Plugin::Authorize::Credentials::MyAuthorizationClass;
-    use base 'Dancer::Plugin::Authorize::Credentials';
+    package Dancer::Plugin::Auth::RBAC::Credentials::MyAuthorizationClass;
+    use base 'Dancer::Plugin::Auth::RBAC::Credentials';
     
     # every authentication class must have an authorize routine
     sub authorize {
@@ -23,7 +23,7 @@ use Dancer qw/:syntax/;
 
 =head1 DESCRIPTION
 
-The Dancer::Plugin::Authorize::Credentials class should be used as a base class in
+The Dancer::Plugin::Auth::RBAC::Credentials class should be used as a base class in
 your custom credentials/authorization classes. When used as a base class, this
 class provides instantiation and simple error handling for your authorization classes. 
 

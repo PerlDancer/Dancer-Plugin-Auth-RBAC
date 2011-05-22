@@ -1,15 +1,15 @@
-# ABSTRACT: Dancer::Plugin::Authorize access control via the Dancer configuration file!
+# ABSTRACT: Dancer::Plugin::Auth::RBAC access control via the Dancer configuration file!
 
-package Dancer::Plugin::Authorize::Permissions::Config;
+package Dancer::Plugin::Auth::RBAC::Permissions::Config;
 
 use strict;
 use warnings;
-use base qw/Dancer::Plugin::Authorize::Permissions/;
+use base qw/Dancer::Plugin::Auth::RBAC::Permissions/;
 
 =head1 SYNOPSIS
 
     plugins:
-      Authorize:
+      Auth::RBAC:
         permissions:
           class: Config
           options: 
@@ -36,7 +36,7 @@ use base qw/Dancer::Plugin::Authorize::Permissions/;
 
 =head1 DESCRIPTION
 
-Dancer::Plugin::Authorize::Permissions::Config uses your Dancer application
+Dancer::Plugin::Auth::RBAC::Permissions::Config uses your Dancer application
 configuration file as role-based access control system. 
 
 =method subject_asa
