@@ -1,0 +1,1 @@
+    * croak when no credentials is given to 'auth' (Franck Cuny)
