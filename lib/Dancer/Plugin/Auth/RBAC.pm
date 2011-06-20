@@ -226,7 +226,7 @@ L<Dancer::Plugin::Auth::RBAC::Credentials::Config> and
 L<Dancer::Plugin::Auth::RBAC::Permissions::Config>.  This framework also ship
 with L<Dancer::Plugin::Auth::RBAC::Credentials::SQLite>,
 L<Dancer::Plugin::Auth::RBAC::Credentials::MySQL>,
-L<Dancer::Plugin::Auth::RBAC::Credentials::PostrgeSQL> which are arguably
+L<Dancer::Plugin::Auth::RBAC::Credentials::PostgreSQL> which are arguably
 easier to setup and utilize.
 
     plugins:
