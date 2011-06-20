@@ -268,3 +268,11 @@ easier to setup and utilize.
                     operations:
                       - view
 
+=head1 CONTRIBUTING
+
+This module is developed on GitHub at
+https://github.com/PerlDancer/Dancer-Plugin-Auth-RBAC
+
+Pull requests, bug reports and feedback very welcome.
+
+
