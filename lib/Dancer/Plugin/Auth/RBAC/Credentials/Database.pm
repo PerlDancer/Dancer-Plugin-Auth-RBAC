@@ -16,11 +16,6 @@ use Dancer::Logger;
         # login successful
     }
     
-    # use your own encryption (if the user account password is encrypted)
-    my $auth = auth($login, encrypt($password));
-    if ($auth) {
-        # login successful
-    }
 
 =head1 DESCRIPTION
 
@@ -67,7 +62,7 @@ options and arguments.
     # You'll need to create three tables to store user details, as follows.
     # Feel free to include other fields in the users table.
     
-    CREATE TABLE "users" (
+    CREATE TABLE "user" (
     "id" SERIAL NOT NULL PRIMARY KEY,
     "name" TEXT,
     "login" TEXT NOT NULL,
@@ -75,25 +70,25 @@ options and arguments.
     "roles" TEXT
     );
 
-    CREATE TABLE "roles" (
+    CREATE TABLE "role" (
     "id" SERIAL NOT NULL PRIMARY KEY,
     "role" TEXT NOT NULL
     );
 
-    CREATE TABLE "user_roles" (
+    CREATE TABLE "user_role" (
     "user_id" NOT NULL,
     "role_id" NOT NULL
     );
 
     # Create some roles:
-    INSERT INTO roles (id, role) VALUES ('1', 'users');
-    INSERT INTO roles (id, role) VALUES ('2', 'admin');
+    INSERT INTO role (id, role) VALUES ('1', 'users');
+    INSERT INTO role (id, role) VALUES ('2', 'admin');
    
     # Create an initial admin user, and assign roles to them
-    INSERT INTO users (id, name, login, password, roles)
+    INSERT INTO user (id, name, login, password, roles)
         VALUES (1. 'Administrator', 'admin', '*****');
-    INSERT INTO user_roles (user_id, role_id) VALUES (1,1);
-    INSERT INTO user_roles (user_id, role_id) VALUES (1,2);
+    INSERT INTO user_role (user_id, role_id) VALUES (1,1);
+    INSERT INTO user_role (user_id, role_id) VALUES (1,2);
 
 
 =method authorize
